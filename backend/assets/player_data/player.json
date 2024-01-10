@@ -1,0 +1,104 @@
+{
+  "playerlist": [],
+  "newplayer": {
+    "location": {
+      "x": 0,
+      "y": 0
+    },
+    "lvls": {
+      "lvl": 0,
+      "mglvl": 0
+    },
+    "stats": {
+      "health": 20,
+      "magic": 10,
+      "capacity": 50
+    },
+    "skills": {
+      "fist": 0,
+      "sword": 0,
+      "axe": 0,
+      "blunt": 0,
+      "distance": 0,
+      "defense": 0,
+      "fishing": 0
+    },
+    "experience": {
+      "currentxp": 0,
+      "currentmgxp": 0,
+      "fistxp": 0,
+      "swordxp": 0,
+      "axexp": 0,
+      "bluntxp": 0,
+      "distancexp": 0,
+      "defensexp": 0,
+      "fishingxp": 0
+    },
+    "equipped": {
+      "neck": "empty",
+      "head": "empty",
+      "back": "empty",
+      "mainhand": "empty",
+      "offhand": "empty",
+      "chest": "empty",
+      "legs": "empty",
+      "feet": "empty"
+    },
+    "inventory": [],
+    "stance": "defensive"
+  },
+  "lvlupdata": {
+    "statincreases": {
+      "health": 15,
+      "magic": 10,
+      "capacity": 5
+    },
+    "advancementranges": {
+      "lvlranges": {
+        "0": 20,
+        "1": 40,
+        "2": 80,
+        "3": 160,
+        "4": 320,
+        "5": 640,
+        "6": 1080,
+        "7": 2160,
+        "8": 4320,
+        "9": 8640,
+        "10": 17280
+      },
+      "mglvlranges": {
+        "0": 20,
+        "1": 40,
+        "2": 80,
+        "3": 160,
+        "4": 320,
+        "5": 640,
+        "6": 1280,
+        "7": 2560,
+        "8": 5120,
+        "9": 10240,
+        "10": 20480
+      },
+      "weaponsranges": {
+        "0": 20,
+        "1": 40,
+        "2": 80,
+        "3": 160,
+        "4": 320,
+        "5": 640,
+        "6": 1280,
+        "7": 2560,
+        "8": 5120,
+        "9": 10240,
+        "10": 20480,
+        "11": 40960,
+        "12": 81920,
+        "13": 163840,
+        "14": 327680,
+        "15": 655360
+      }
+    }
+  },
+  "isLoaded": true
+}

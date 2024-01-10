@@ -1,0 +1,102 @@
+/* CSS RESET */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  image-rendering: pixelated;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  height: 100dvh;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow: clip;
+}
+
+img, picture, video, canvas, svg {
+  max-width: 100%;
+  height: auto;
+  vertical-align: middle;
+  font-size: 0;
+  font-style: italic;
+  background-repeat: no-repeat;
+  background-size: cover;
+  shape-margin: 1rem;
+}
+
+input, button, textarea, select {
+  font: inherit;
+}
+
+p, h1, h2, h3, h4, h5, h6 {
+  overflow-wrap: break-word;
+}
+
+#root, #__next {
+  isolation: isolate;
+}
+
+/* CSS Styles */
+#game-container {
+
+}
+
+/* Form Styles */
+.form-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#login-form {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#login-form legend {
+  padding: 1rem;
+  margin-left: 10px;
+}
+
+#login-form label {
+  font-size: 1.5rem;
+  padding: 1rem;
+}
+
+#login-form input[type="text"] {
+  padding: 0.5rem;
+  height: 2.4rem;
+  border: none;
+  outline: none;
+  border-bottom: 1px solid #ccc; 
+}
+
+#login-form #login-btn {
+  border: none;
+  background: none;
+  padding: 0.5rem 2rem;
+  margin-left: 15px;
+  cursor: pointer;
+}
+
+/* Lefthand-side */
+#playerdata-container {
+  display: none;
+  flex-direction: column;
+  width: 192px;
+  background: rgb(46, 46, 46);
+}
