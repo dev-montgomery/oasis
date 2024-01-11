@@ -1,9 +1,9 @@
 // Base class for objects with common properties
 class GameObject {
-  constructor({ source, sprite, coordinates, size }) {
+  constructor({ src, source, coordinates, size }) {
     this.image = new Image();
-    this.image.src = source;
-    this.sprite = sprite;
+    this.image.src = src;
+    this.source = source;
     this.coordinates = coordinates;
     this.size = size || 64;
   };
@@ -18,8 +18,8 @@ class GameObject {
 };
 
 export class Player extends GameObject {
-  constructor({ sprite, coordinates, direction }) {
-    super({ source: '../backend/assets/player_data/player.png', sprite, coordinates });
+  constructor({ source, coordinates, direction }) {
+    super({ src: '../backend/assets/player_data/player.png', source, coordinates });
     this.direction = direction || { sx: 0, sy: 0 };
     this.offset = 48;
     this.speed = 500;
@@ -47,7 +47,7 @@ export class Tile extends GameObject {
 
 export class Item extends GameObject {
   constructor({ id, type, name, sx, sy, dx, dy, scale }) {
-    super({ source: '../backend/assets/item_data/items.png' });
+    super({ src: '../backend/assets/item_data/items.png' });
     this.id = id;
     this.type = type;
     this.name = name;
