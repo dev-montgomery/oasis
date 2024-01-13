@@ -46,11 +46,7 @@ p, h1, h2, h3, h4, h5, h6 {
 }
 
 /* CSS Styles */
-#game-container {
-
-}
-
-/* Form Styles */
+/* form styles */
 .form-container {
   position: absolute;
   top: 50%;
@@ -77,11 +73,13 @@ p, h1, h2, h3, h4, h5, h6 {
   padding: 1rem;
 }
 
-#login-form input[type="text"] {
-  padding: 0.5rem;
-  height: 2.4rem;
+#login-form input[name="playername"] {
   border: none;
   outline: none;
+  box-shadow: none;
+  font-size: 2rem;
+  padding: 0.5rem;
+  width: 16rem;
   border-bottom: 1px solid #ccc; 
 }
 
@@ -93,10 +91,36 @@ p, h1, h2, h3, h4, h5, h6 {
   cursor: pointer;
 }
 
+/* Game Container */
+#game-container {
+  display: none;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
 /* Lefthand-side */
 #playerdata-container {
-  display: none;
+  display: flex;
   flex-direction: column;
-  width: 192px;
+  height: 704px;
+  width: 192px;   
   background: rgb(46, 46, 46);
+  color: #ccc;
+  padding: 1rem;
+  font-size: 1.6rem;
 }
+
+#playerdata-container .box {
+  font-size: 1rem;
+  padding-top: 1rem;
+}
+
+#playerdata-container .box li {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+/* Righthand-side */
