@@ -21,11 +21,9 @@ window.addEventListener('load', event => {
   // const and let variables -----------------------------------------------
   const API_URL = 'http://localhost:4000/playerdata';
   
-  const upperTiles = [ 576, 577, 578, 579, 601, 602, 603, 604 ];
-  const waterTiles = [ 1, 2, 3, 4, 5, 6, 7, 8 ];
-
   const form = document.querySelector('.form-container');
   const login = document.querySelector('#login-form');
+  let chatbox = false;
 
   // init player | npcs | items --------------------------------------------
   const player = new Player({ 
@@ -84,6 +82,83 @@ window.addEventListener('load', event => {
     ctx.drawImage(image, sx, sy, size, size, dx, dy, size, size);
   };
 
+  const createPlayerStatElement = (label, value) => {
+    const statElement = document.createElement('li');
+
+    const labelElement = document.createElement('span');
+    labelElement.textContent = label;
+
+    const valueElement = document.createElement('span');
+    valueElement.textContent = value;
+
+    statElement.appendChild(labelElement);
+    statElement.appendChild(valueElement);
+
+    return statElement;
+  };
+
+  const appendPlayerStatData = () => {
+    const playerStatsContainer = document.getElementById('playerdata-container');
+    playerStatsContainer.innerHTML = '';
+
+    const playerDataLevels = document.createElement('ul');
+    playerDataLevels.classList.add('box');
+    
+    const playerDataSkills = document.createElement('ul');
+    playerDataSkills.classList.add('box');
+
+    playerStatsContainer.textContent = player.data.name;
+    playerDataLevels.appendChild(createPlayerStatElement('level', player.data.details.lvls.lvl));
+    playerDataLevels.appendChild(createPlayerStatElement('magic level', player.data.details.lvls.mglvl));
+    playerDataSkills.appendChild(createPlayerStatElement('fist skill', player.data.details.skills.fist));
+    playerDataSkills.appendChild(createPlayerStatElement('sword skill', player.data.details.skills.sword));
+    playerDataSkills.appendChild(createPlayerStatElement('axe skill', player.data.details.skills.axe));
+    playerDataSkills.appendChild(createPlayerStatElement('blunt skill', player.data.details.skills.blunt));
+    playerDataSkills.appendChild(createPlayerStatElement('distance skill', player.data.details.skills.distance));
+    playerDataSkills.appendChild(createPlayerStatElement('defense skill', player.data.details.skills.defense));
+    playerDataSkills.appendChild(createPlayerStatElement('fishing skill', player.data.details.skills.fishing));
+
+    playerStatsContainer.appendChild(playerDataLevels);
+    playerStatsContainer.appendChild(playerDataSkills);
+  };
+
+  const detectCollision = (objects, newX, newY) => {
+    for (let i = 0; i < objects.length; i++) {
+      const obj = objects[i];
+  
+      if (
+        newX < obj.coordinates.dx + obj.size &&
+        newX + player.size > obj.coordinates.dx &&
+        newY < obj.coordinates.dy + obj.size &&
+        newY + player.size > obj.coordinates.dy
+      ) {
+        return true;
+      };
+    };
+    return false;
+  };
+  
+  const collisionDetect = (newX, newY) => {
+    const drawOasisOutput = drawOasis();
+    console.log(drawOasisOutput.boundaries)
+    return detectCollision(drawOasisOutput.boundaries, newX, newY);
+  };
+  
+  const waterDetect = (newX, newY) => {
+    return detectCollision(wateries, newX, newY);
+  };
+
+  function updateWorldLocations(valX, valY) {
+    player.data.details.location.x += valX;
+    player.data.details.location.y += valY;
+  
+    // Update object locations in the world
+    // items.forEach(item => {
+    //   item.dx -= valX * item.size * item.scale;
+    //   item.dy -= valY * item.size * item.scale;
+    // });
+  };
+
   // load assets -----------------------------------------------------------
   const genus = new Image();
   genus.src = './backend/assets/map_data/spritesheet-genus.png';
@@ -96,6 +171,8 @@ window.addEventListener('load', event => {
 
   // draw functions -------------------------------------------------------- 
   const drawOasis = (currentMap = resources.mapData.isLoaded && resources.mapData.genus01.layers) => {
+    const upperTiles = [ 576, 577, 578, 579, 601, 602, 603, 604 ];
+    const waterTiles = [ 1, 2, 3, 4, 5, 6, 7, 8 ];
     const boundaries = [];
     const wateries = [];
     const uppermost = [];
@@ -124,28 +201,25 @@ window.addEventListener('load', event => {
           const dy = Math.floor(i / screen.frames.col) * genus.size;
 
           if (upperTiles.includes(tileID)) {
-            const upper = new Tile({
-              source: { sx, sy },
-              coordinates: { dx, dy }
+            const upper = new Tile({ sx, sy }, { dx, dy });
+            upper.loadImage().then(() => {
+              upper.tileID = tileID;
+              uppermost.push(upper);
             });
-            upper.tileID = tileID;
-            uppermost.push(upper);
           };
 
           if (waterTiles.includes(tileID)) {
-            const water = new Tile({
-              source: { sx, sy },
-              coordinates: { dx, dy }
+            const water = new Tile({ sx, sy }, { dx, dy });
+            water.loadImage().then(() => {
+              wateries.push(water);
             });
-            wateries.push(water);
           };
 
           if (tileID === 25) {
-            const boundary = new Tile({
-              source: { sx, sy },
-              coordinates: { dx, dy }
+            const boundary = new Tile({ sx, sy }, { dx, dy });
+            boundary.loadImage().then(() => {
+              boundaries.push(boundary);
             });
-            boundaries.push(boundary);
           } else {
             drawFrame(genus, { source: { sx, sy }, coordinates: { dx, dy }, size: 64 });
           };
@@ -168,9 +242,6 @@ window.addEventListener('load', event => {
     return { boundaries, wateries, uppermost };
   };
 
-  // game functions --------------------------------------------------------
-
-
   // handle form and... enter game -----------------------------------------
   const handleFormAndEnterGame = async e => {
     e.preventDefault();
@@ -190,12 +261,14 @@ window.addEventListener('load', event => {
       }, 100);
     });
 
-    canvas.style.background = '#464646';
+    // canvas.style.background = '#464646';
+    const game = document.querySelector('#game-container');
+    game.style.display = 'flex';
 
     // Enter World
     if (genus.loaded && player.loaded) {
+      appendPlayerStatData();
       drawOasis();
-      // appendPlayerData()
     };
   };
 
@@ -213,7 +286,53 @@ window.addEventListener('load', event => {
   });
 
   addEventListener('keydown', e => {
-
+    if (!form.closed || chatbox || player.cooldown) {
+      return;
+    };
+  
+    let { dx, dy } = player.coordinates;
+    let valX = 0;
+    let valY = 0;
+  
+    switch (e.key) {
+      case 'w':
+        player.direction = player.source.upward;
+        dy -= player.size;
+        valY--;
+        break;
+  
+      case 's':
+        player.direction = player.source.downward;
+        dy += player.size;
+        valY++;
+        break;
+  
+      case 'a':
+        player.direction = player.source.leftward;
+        dx -= player.size;
+        valX--;
+        break;
+  
+      case 'd':
+        player.direction = player.source.rightward;
+        dx += player.size;
+        valX++;
+        break;
+  
+      default:
+        return;
+    };
+  
+    if (!collisionDetect(dx, dy)) {
+      updateWorldLocations(valX, valY);
+    };
+  
+    player.cooldown = true;
+    setTimeout(() => {
+      player.cooldown = false;
+    }, player.speed);
+  
+    drawOasis();
   });
 
   addEventListener('beforeunload', async (e) => {

@@ -18,9 +18,9 @@ class GameObject {
 };
 
 export class Player extends GameObject {
-  constructor({ source, coordinates, direction }) {
+  constructor({ source, coordinates }) {
     super({ src: '../backend/assets/player_data/player.png', source, coordinates });
-    this.direction = direction || { sx: 0, sy: 0 };
+    this.direction = { sx: 0, sy: 0 };
     this.offset = 48;
     this.speed = 500;
     this.cooldown = false;
@@ -42,7 +42,9 @@ export class Player extends GameObject {
 };
 
 export class Tile extends GameObject {
-  // No need to repeat common properties in the Tile class
+  constructor(source, coordinates) {
+    super({ src: '../backend/assets/map_data/spritesheet-genus.png', source, coordinates, size: 64 });
+  };
 };
 
 export class Item extends GameObject {
