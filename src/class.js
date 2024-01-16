@@ -21,7 +21,7 @@ export class Player extends GameObject {
   constructor({ source, coordinates }) {
     super({ src: '../backend/assets/player_data/player.png', source, coordinates });
     this.direction = { sx: 0, sy: 0 };
-    this.offset = 48;
+    this.offset = 16;
     this.speed = 500;
     this.cooldown = false;
   };
@@ -42,8 +42,8 @@ export class Player extends GameObject {
 };
 
 export class Tile extends GameObject {
-  constructor(source, coordinates) {
-    super({ src: '../backend/assets/map_data/spritesheet-genus.png', source, coordinates, size: 64 });
+  constructor({ source, coordinates }) {
+    super({ src: '../backend/assets/map_data/spritesheet-genus.png', source, coordinates });
   };
 };
 

@@ -1,0 +1,331 @@
+{ 
+  "container":{
+    "depot":{
+      "slots":36,
+      "capacity":"n/a"
+    }
+  },
+  "back":{
+    "backpack":{
+      "slots":18,
+      "capacity":0.5
+    },
+    "labledbackpack":{
+      "name": null,
+      "slots":18,
+      "capacity":0.5
+    },
+    "enchantedbackpack":{
+      "slots":36,
+      "capacity":0.5
+    },
+    "labeledenchantedbackpack":{
+      "name": null,
+      "slots":36,
+      "capacity":0.5
+    }
+  },
+  "neck":{
+    "fanged":{
+      "offense":1,
+      "defense":"n/a"
+    },
+    "silver":{
+      "offense":1,
+      "defense":1
+    }
+  },
+  "head":{
+    "hood":{
+      "defense":1,
+      "capacity":0.5
+    },
+    "leather":{
+      "defense":2,
+      "capacity":0.75
+    },
+    "coif":{
+      "defense":3,
+      "capacity":1
+    }
+  },
+  "mainhand":{
+    "cestus":{
+      "offense":1,
+      "speed":2,
+      "capacity":0.5
+    },
+    "tigerclaws":{
+      "offense":1.5,
+      "speed":2,
+      "capacity":0.75
+    },
+    "dagger":{
+      "offense":1,
+      "speed":1,
+      "capacity":0.75
+    },
+    "sword":{
+      "offense":2,
+      "speed":1,
+      "capacity":1.25
+    },
+    "hatchet":{
+      "offense":1.25,
+      "speed":1,
+      "capacity":1
+    },
+    "broadaxe":{
+      "offense":2.25,
+      "speed":1,
+      "capacity":1.5
+    },
+    "femur":{
+      "offense":1,
+      "speed":1,
+      "capacity":1
+    },
+    "mace":{
+      "offense":1.5,
+      "speed":0.75,
+      "capacity":1.75
+    },
+    "throwingknives":{
+      "offense":0.75,
+      "speed":1.5,
+      "capacity":0.25
+    },
+    "spear":{
+      "offense":3,
+      "speed":1,
+      "capacity":1.25
+    }
+  },
+  "chest":{
+    "tunic":{
+
+    },
+    "vest":{
+
+    },
+    "chainmail":{
+
+    }
+  },
+  "offhand":{
+    "targe":{
+
+    },
+    "kite":{
+
+    },
+    "heater":{
+
+    }
+  },
+  "legs":{
+    "pants":{
+
+    },
+    "leggings":{
+
+    },
+    "chainmaillegs":{
+
+    }
+  },
+  "feet":{
+    "shoes":{
+
+    },
+    "boots":{
+
+    },
+    "chausses":{
+
+    }
+  },
+  "tool":{
+    "fishingpole":{
+      "capacity":0.75
+    },
+    "shovel":{
+
+    },
+    "rope":{
+
+    },
+    "sundial":{
+
+    },
+    "label":{
+
+    },
+    "envelope":{
+
+    },
+    "parcel":{
+
+    },
+    "torch":{
+
+    }
+  },
+  "currency":{
+    "gold":{
+      "amount":0,
+      "capacity":0.1
+    },
+    "platinum":{
+      "amount":0,
+      "capacity":0.1
+    }
+  },
+  "consumable":{
+    "blue":{
+
+    },
+    "red":{
+
+    },
+    "pink":{
+
+    },
+    "cheesewheel":{
+
+    },
+    "moldycheesewheel":{
+
+    },
+    "bread":{
+
+    },
+    "apple":{
+
+    },
+    "emptyflask":{
+      "capacity":0.25
+    },
+    "antivenom":{
+      "capacity":0.5
+    },
+    "health":{
+      "capacity":0.5
+    },
+    "magic":{
+      "capacity":0.5
+    }
+  },
+  "rubbish":{
+    "brokenshovel":{
+      "capacity":1
+    },
+    "brokensword":{
+      "capacity":1
+    },
+    "brokentarge":{
+      "capacity":1.25
+    },
+    "brokenflask":{
+      "capacity":0.15
+    },
+    "blackstone":{
+      "capacity":0.5
+    },
+    "fishbones":{
+      "capacity":0.1
+    },
+    "torchstub":{
+      "capacity":0.25
+    },
+    "moldybook":{
+      "capacity":0.50
+    }
+  },
+  "decor":{
+    "azaleayellow":{
+      "capacity":0.05
+    },
+    "azaleaorange":{
+      "capacity":0.05
+    },
+    "azaleared":{
+      "capacity":0.05
+    },
+    "azaleablue":{
+      "capacity":0.05
+    }
+  },
+  "literature":{
+    "genusequipmentalmanac":{
+      "capacity":0.25
+    },
+    "genusspellsalmanac":{
+      "capacity":0.25
+    },
+    "genusmonsters":{
+      "capacity":0.25
+    },
+    "knight":{
+      "text":"A knight of the Oasis is a noble and valiant warrior standing against the encroaching shadows of darkness. Clad in gleaming armor that reflects the hues of a setting sun, the knight embodies chivalry, courage, and honor. Their armor, adorned with intricate designs and family symbols, tells the tale of battles fought and victories won. Their tales are sung by bards, and their deeds become legends etched into the tapestry of Oasis history, inspiring hope and admiration for generations to come. A knight is not merely a warrior; they are a symbol of nobility, loyalty, and the unwavering pursuit of a just cause. Knights of the Oasis benefit from greater health pools, a larger capacity to carry more items, and more easily advance in melee skills. The cost of being a knight is an inability to access significant sources of magic, limiting their spell range as well as their development in magic.",
+      "capacity":0.25
+    },
+    "archer":{
+      "text":"The Oasis archer is a silent sentinel, a master of the bow who moves through the shadows with an ethereal grace. Clad in attire that seamlessly blends with the surrounding wilderness, the archer is a guardian of distant realms and a harbinger of swift and precise justice. The bow, a weapon of elegance and lethal precision, is the archer's instrument of choice, crafted from the wood of ancient trees. Arrows, feathered and tipped with the essence of enchanted metals, are the conduits through which the archer channels both skill and destiny. Archers of the Oasis share the benefits of knights and spell casters alike. Their health and magic pools average those of their peers with a moderate capacity to carry items as well. The pitfall of the archer is the necessity to maintain distance in combat as well as a smaller range of spells at their disposal. Last, a supply of arrows is critical.",
+      "capacity":0.25
+    },
+    "sorcerer":{
+      "text":"Sorcerers of the Oasis often carry an aura of mystery, as their motives and loyalties may be as fluid as the magical energies they command. Some are guardians of ancient secrets, while others walk the fine line between light and shadow, seeking to unravel the mysteries of existence or harness the powers of forgotten realms. The sorcerer is a living conduit of magic, a bridge between the mundane and the extraordinary, shaping the destinies of worlds with the mere utterance of an incantation. In the tapestry of Oasis history, the sorcerer is a luminous thread, weaving tales of wonder and wielding the forces that bind reality itself. Sorcerers have significant pools of magic and the largest access to the deadliest spells. Only sorcerers have the ability to weave their deadly magic into runes as they prepare for the adventures ahead. Their access to sheer power comes at a significant cost. Sorcerers have small health pools, are among the slowest to advance their skillsets, and have the smallest capacity to carry items; however, they excel at developing their magic.",
+      "capacity":0.25
+    },
+    "druid":{
+      "text":"The Oasis druid stands as a guardian of the natural world, an emissary between the realms of life and death. An earthly conduit for magic bound to nature and healing. Entwined with the Oasis, the druid moves through the wilderness with an innate connection to the cycles of life and the harmonies of the natural order. In the enchanted lore of fantasy, the druid is a steward of the natural world, a healer of wounds, a shepherd of spirits, and a keeper of the delicate balance between life and death. Through their connection to the primal forces, they embody the enduring cycles of the wild, eternally bound to the mystical dance of existence. Druids have significant pools of magic and solely possess the ability to imbue runes with the healing powers found in creation and life itself. They share similar life pools to archers and excel at developing magic, however their pitfalls are that they are among the slowest to advance their skillsets, and have the smallest capacity for carrying items.",
+      "capacity":0.25
+    },
+    "illud":{
+      "text":"This book is the human interpretation of creation by the Devout who follow in the First Faith. It describes the formation of the Deorum, the origins of observable creation, how the Ostium was formed, and it examines what it means to live a life worthy of the Gods. For the proven warriors of the Oasis, death is not the end, but an important piece of the journey.",
+      "capacity":0.25
+    },
+    "islandsofgenus":{
+      "text":"The quest of a new warrior is a pursuit of purpose, and the purpose of Genus is preparation for the mainland Oasis. Once ready (lvl 8), the path to the mainland is offered, for which one is expected to choose their profession going forward as a knight, an archer, a sorcerer, or as a druid. Until then, the islands are in need of cleansing and maintenance. Non native pests scurry in its corners, and dispirited trolls roam the caverns below. A warrior of the Oasis learns that every choice has a cost, for every decision is another thread in the tapestry of the Oasis. A life on the Oasis is a gift and a warrior's death on the Oasis is earned.",
+      "capacity":0.25
+    },
+    "taleofthetrollking":{
+      "capacity":0.25
+    },
+    "theofaresoftrolls":{
+      "capacity":0.25
+    },
+    "bookofheremal":{
+      "race":"human",
+      "text":"The book of Heremal describes a thousand year war encompassing the rise of the Hollow God, Tenebris. It is a historical recitation by one of two remaining warpriests of the Oasis said to have existed since the era of the Gods back when they walked the Oasis themselves. This book describes the events that led to modernity detailing the deaths of seven of the Deorum and their lost civilizations. Heremal relents that the remaining Gods bound themselves to the continent of creation and submerged it into the Aequoris creating the Ostium, a massive sinkhole out in the ocean with the distinct purpose of segregating the Hollow God from the origins of life. Heremal theorizes that though they were successful in separating worlds, he believes Tenebris was already among them when the continent fell beneath the waves. Heremal now seeks those who discover their purpose as warriors of the Oasis to set sail into the Ostium to join the remaining Gods in their fight against the darkness. The final piece of Heremal's recitation describes a harrowing notion of a new race growing in the darkest depths of the Oasis, a signal that Tenebris now holds influence over creation.",
+      "capacity":0.25
+    },
+    "bookofandani":{
+      "race":"elven",
+      "capacity":0.25
+    },
+    "bookoffennra":{
+      "race":"minos",
+      "capacity":0.25
+    },
+    "bookofokrek":{
+      "race":"oric",
+      "capacity":0.25
+    },
+    "bookofyuckk":{
+      "race":"trollic",
+      "capacity":0.25
+    },
+    "bookoftirin":{
+      "race":"oathesworn",
+      "capacity":0.25
+    },
+    "scroll":{
+      "capacity":0.1
+    },
+    "novascroll":{
+      "capacity":0.1
+    }
+  }
+}
