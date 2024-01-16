@@ -73,7 +73,7 @@ class Resources {
   };
 
   async loadItemData() {
-    this.itemData = await this.fetchJson('item_data/item.json');
+    this.itemData = await this.fetchJson('item_data/items.json');
     this.itemData.isLoaded = true;
   };
 };

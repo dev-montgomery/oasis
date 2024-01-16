@@ -24,6 +24,9 @@ window.addEventListener('load', event => {
   const form = document.querySelector('.form-container');
   const login = document.querySelector('#login-form');
   let chatbox = false;
+  let boundaries = [];
+  let wateries = [];
+  let uppermost = [];
 
   // init player | npcs | items --------------------------------------------
   const player = new Player({ 
@@ -75,10 +78,10 @@ window.addEventListener('load', event => {
     await postPlayerData(resources.playerData);
   };
 
-  const drawFrame = (image, frame) => {
-    const { sx, sy } = frame.source;
-    const { dx, dy } = frame.coordinates;
-    const size = frame.size;
+  const drawTile = (image, tile) => {
+    const { sx, sy } = tile.source;
+    const { dx, dy } = tile.coordinates;
+    const size = tile.size;
     ctx.drawImage(image, sx, sy, size, size, dx, dy, size, size);
   };
 
@@ -125,7 +128,6 @@ window.addEventListener('load', event => {
   const detectCollision = (objects, newX, newY) => {
     for (let i = 0; i < objects.length; i++) {
       const obj = objects[i];
-  
       if (
         newX < obj.coordinates.dx + obj.size &&
         newX + player.size > obj.coordinates.dx &&
@@ -139,9 +141,7 @@ window.addEventListener('load', event => {
   };
   
   const collisionDetect = (newX, newY) => {
-    const drawOasisOutput = drawOasis();
-    console.log(drawOasisOutput.boundaries)
-    return detectCollision(drawOasisOutput.boundaries, newX, newY);
+    return detectCollision(boundaries, newX, newY);
   };
   
   const waterDetect = (newX, newY) => {
@@ -173,9 +173,9 @@ window.addEventListener('load', event => {
   const drawOasis = (currentMap = resources.mapData.isLoaded && resources.mapData.genus01.layers) => {
     const upperTiles = [ 576, 577, 578, 579, 601, 602, 603, 604 ];
     const waterTiles = [ 1, 2, 3, 4, 5, 6, 7, 8 ];
-    const boundaries = [];
-    const wateries = [];
-    const uppermost = [];
+    boundaries = [];
+    wateries = [];
+    uppermost = [];
 
     const startingTile = {
       x: player.data.details.location.x - Math.floor(screen.frames.col / 2),
@@ -201,45 +201,37 @@ window.addEventListener('load', event => {
           const dy = Math.floor(i / screen.frames.col) * genus.size;
 
           if (upperTiles.includes(tileID)) {
-            const upper = new Tile({ sx, sy }, { dx, dy });
-            upper.loadImage().then(() => {
-              upper.tileID = tileID;
-              uppermost.push(upper);
-            });
+            const upper = new Tile({ source: { sx, sy }, coordinates: { dx, dy } });
+            upper.tileID = tileID;
+            uppermost.push(upper);
           };
 
           if (waterTiles.includes(tileID)) {
-            const water = new Tile({ sx, sy }, { dx, dy });
-            water.loadImage().then(() => {
-              wateries.push(water);
-            });
+            const water = new Tile({ source: { sx, sy }, coordinates: { dx, dy } });
+            wateries.push(water);
           };
 
           if (tileID === 25) {
-            const boundary = new Tile({ sx, sy }, { dx, dy });
-            boundary.loadImage().then(() => {
-              boundaries.push(boundary);
-            });
+            const boundary = new Tile({ coordinates: { dx, dy } });
+            boundaries.push(boundary);
           } else {
-            drawFrame(genus, { source: { sx, sy }, coordinates: { dx, dy }, size: 64 });
+            drawTile(genus, { source: { sx, sy }, coordinates: { dx, dy }, size: 64 });
           };
         };
       });
     });
-
+    
     player.draw(ctx);
-
     uppermost.forEach(tile => {
-      drawFrame(
+      drawTile(
         genus, 
         { 
           source: { sx: tile.source.sx, sy: tile.source.sy }, 
-          coordinates: { dx: tile.coordinates.dx, dy: tile.coordinates.dy },
+          coordinates: { dx: tile.coordinates.dx, dy: tile.coordinates.dy }, 
           size: tile.size 
         }
       );
     });
-    return { boundaries, wateries, uppermost };
   };
 
   // handle form and... enter game -----------------------------------------
@@ -290,7 +282,8 @@ window.addEventListener('load', event => {
       return;
     };
   
-    let { dx, dy } = player.coordinates;
+    let dx = player.coordinates.dx + player.offset;
+    let dy = player.coordinates.dy + player.offset;
     let valX = 0;
     let valY = 0;
   
@@ -326,12 +319,12 @@ window.addEventListener('load', event => {
     if (!collisionDetect(dx, dy)) {
       updateWorldLocations(valX, valY);
     };
-  
+    
     player.cooldown = true;
     setTimeout(() => {
       player.cooldown = false;
     }, player.speed);
-  
+   
     drawOasis();
   });
 
