@@ -46,15 +46,23 @@ p, h1, h2, h3, h4, h5, h6 {
 }
 
 /* CSS Styles */
+body {
+  background: url('../backend/assets/background.jpg');
+  background-size: cover;
+  background-repeat:no-repeat;
+  background-position: center center;
+}
+
 /* form styles */
 .form-container {
   position: absolute;
-  top: 50%;
+  top: 40%;
   left: 50%;
   transform: translate(-50%, -50%);
   display: flex;
   justify-content: center;
   align-items: center;
+  color: #fff;
 }
 
 #login-form {
@@ -74,6 +82,7 @@ p, h1, h2, h3, h4, h5, h6 {
 }
 
 #login-form input[name="playername"] {
+  background: transparent;
   border: none;
   outline: none;
   box-shadow: none;
@@ -81,6 +90,7 @@ p, h1, h2, h3, h4, h5, h6 {
   padding: 0.5rem;
   width: 16rem;
   border-bottom: 1px solid #ccc; 
+  color: #fff;
 }
 
 #login-form #login-btn {
@@ -89,6 +99,7 @@ p, h1, h2, h3, h4, h5, h6 {
   padding: 0.5rem 2rem;
   margin-left: 15px;
   cursor: pointer;
+  color: #fff;
 }
 
 /* Game Container */

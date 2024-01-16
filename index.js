@@ -23,6 +23,7 @@ window.addEventListener('load', event => {
   
   const form = document.querySelector('.form-container');
   const login = document.querySelector('#login-form');
+
   let chatbox = false;
   let boundaries = [];
   let wateries = [];
@@ -253,15 +254,19 @@ window.addEventListener('load', event => {
       }, 100);
     });
 
-    // canvas.style.background = '#464646';
-    const game = document.querySelector('#game-container');
-    game.style.display = 'flex';
-
     // Enter World
-    if (genus.loaded && player.loaded) {
-      appendPlayerStatData();
-      drawOasis();
-    };
+    setTimeout(() => {
+      if (genus.loaded && player.loaded) {
+        document.querySelector('body').style.background = '#464646';
+        // do something else with the background
+        canvas.style.background = '#464646';
+        const game = document.querySelector('#game-container');
+        game.style.display = 'flex';
+        appendPlayerStatData();
+        drawOasis();
+        // could add a character animation poofing into existence
+      };
+    }, 500);
   };
 
   // event listeners -------------------------------------------------------
