@@ -48,13 +48,13 @@ export class Tile extends GameObject {
 };
 
 export class Item extends GameObject {
-  constructor(id, type, name, { source, coordinates }) {
+  constructor(id, type, name, { source, coordinates }, scale) {
     super({ src: '../backend/assets/item_data/items.png', source, coordinates });
     this.id = id;
     this.type = type;
     this.name = name;
+    this.scale = scale;
     this.size = 64;
-    this.scale = 1;
     this.isDragging = false;
   };
 

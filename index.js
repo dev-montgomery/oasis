@@ -37,9 +37,10 @@ window.addEventListener('load', event => {
     feet: { x: screen.width + 144, y: 144 }    
   };
   const menuButtonPositions = {
-    mapbtn: { sx: 96, sy: 320, dx: screen.width + 16, dy: 208, size: 32 },
-    inventorybtn: { sx: 128, sy: 320, dx: screen.width + 80, dy: 208, size: 32 },
-    listbtn: { sx: 160, sy: 320, dx: screen.width + 142, dy: 208, size: 32 },
+    mapbtn: { sx: 0, sy: 320, dx: screen.width + 16, dy: 208, size: 32 },
+    inventorybtn: { sx: 32, sy: 320, dx: screen.width + 80, dy: 208, size: 32 },
+    listbtn: { sx: 64, sy: 320, dx: screen.width + 142, dy: 208, size: 32 },
+    active: { sx: 96, sy: 320 }
   };
   const stancesButtonPositions = {
     attackInactive: { sx: 96, sy: 352, dx: screen.width, dy: 640, size: 32, scale: 2 },
@@ -87,7 +88,7 @@ window.addEventListener('load', event => {
   const menu = new Image();
   menu.src = './backend/assets/menu.png';
   menu.containers = containerPositions;
-  menu.buttons = {
+  menu.toggles = {
     menuSection: menuButtonPositions,
     stanceSection: stancesButtonPositions,
     mapContentsSection: mapSectionScrollButtonPositions,
@@ -112,7 +113,6 @@ window.addEventListener('load', event => {
   });
 
   // utility functions -----------------------------------------------------
-  // player data functions
   const updateLocalPlayerData = () => {
     const playerToUpdateIndex = resources.playerData.playerlist.findIndex(user => user.id === player.data.id);
     if (playerToUpdateIndex !== -1) {
@@ -183,7 +183,7 @@ window.addEventListener('load', event => {
     playerStatsContainer.appendChild(playerDataLevels);
     playerStatsContainer.appendChild(playerDataSkills);
   };
-  // map functions
+  // -------------
   const drawTile = (image, tile) => {
     const { sx, sy } = tile.source;
     const { dx, dy } = tile.coordinates;
@@ -213,9 +213,9 @@ window.addEventListener('load', event => {
   const waterDetect = (newX, newY) => {
     return detectCollision(wateries, newX, newY);
   };
-  // item functions
-  const initItem = (id, type, name, sx, sy, dx, dy) => {
-    const rpgItem = new Item(id, type, name, { source: { sx, sy }, coordinates: { dx, dy } });
+  // --------------
+  const initItem = (id, type, name, sx, sy, dx, dy, scale = 1) => {
+    const rpgItem = new Item(id, type, name, { source: { sx, sy }, coordinates: { dx, dy } }, scale);
     
     const category = resources.itemData[type];
     if (category && category[name]) {
@@ -224,13 +224,13 @@ window.addEventListener('load', event => {
   
     // console.log(`${name} created.`, rpgItem);
   
-    // if (isInEquipmentSection(rpgItem)) {
-    //   equipped.push(rpgItem);
+    if (isInEquipmentSection(rpgItem)) {
+      equipped.push(rpgItem);
     // } else if (isInInventorySection(rpgItem)) {
     //   inventory.push(rpgItem);
-    // } else {
+    } else {
       items.push(rpgItem);
-    // };
+    };
   };
 
   const randomID = (input) => {
@@ -282,10 +282,46 @@ window.addEventListener('load', event => {
       item.coordinates.dy -= valY * item.size * item.scale;
     });
   };
-  // player interface functions
-
+  // ---------------
+  const isPointInsideRectangle = (pointX, pointY, rectangle) => {
+    return (
+      pointX >= rectangle.x &&
+      pointX <= rectangle.x + rectangle.width &&
+      pointY >= rectangle.y &&
+      pointY <= rectangle.y + rectangle.height
+    );
+  };
+  
+  const isMouseOverButton = (mouseX, mouseY, button) => isPointInsideRectangle(mouseX, mouseY, button);
+  
+  const isInEquipmentSection = (item) => {
+    return isPointInsideRectangle(item.dx, item.dy, {
+      x: screen.width,
+      y: 0,
+      width: 192,
+      height: 192
+    });
+  };
+  
+  const isInInventorySection = (item) => {
+    const inventorySection = inventoryContainerSizes.inventorySection;
+    return isPointInsideRectangle(item.dx, item.dy, inventorySection);
+  };
+  
+  const isMouseOverItem = (mouseX, mouseY, item) => {
+    return isPointInsideRectangle(mouseX, mouseY, {
+      x: item.dx,
+      y: item.dy,
+      width: item.size * item.scale,
+      height: item.size * item.scale
+    });
+  };
   // equip functions
-
+// const btns = menu.toggles.menuSection;
+    // mapbtn: { sx: 0, sy: 320, dx: screen.width + 16, dy: 208, size: 32 },
+    // inventorybtn: { sx: 32, sy: 320, dx: screen.width + 80, dy: 208, size: 32 },
+    // listbtn: { sx: 64, sy: 320, dx: screen.width + 142, dy: 208, size: 32 },
+    // active: { sx: 96, sy: 320 }
   // inventory functions
 
   // draw functions -------------------------------------------------------- 
@@ -364,7 +400,7 @@ window.addEventListener('load', event => {
     });
   };
 
-  const drawMenu = (menuToggle) => {
+  const drawMenu = () => {
     switch(menuToggle) {
       case 'map':
         // draw minimap
@@ -373,7 +409,7 @@ window.addEventListener('load', event => {
         // append text
         break;
       case 'inventory':
-        // draw equipment section
+        drawEquipmentSection();
         // draw button toggle
         // draw inventory
         break;
@@ -388,12 +424,20 @@ window.addEventListener('load', event => {
     };
   };
 
-  const drawMenuButtons = () => {
-    
+  const drawEquipmentSection = () => {
+    ctx.clearRect(screen.width, 0, 192, 192);
+    ctx.drawImage(menu, 0, 0, 192, 192, screen.width, 0, 192, 192);
+
+    const equippedItems = player.data.details.equipped;
+    for (const piece in equippedItems) {
+      if (equippedItems[piece] !== 'empty') {
+        const item = equippedItems[piece];
+        initItem(item.id, item.type, item.name, item.source.sx, item.source.sy, item.coordinates.dx, item.coordinates.dy, item.scale);
+        item.draw(ctx);
+      };
+    };
   };
-  // map functions
-  // inventory functions
-  // tracking functions
+
   // handle form and... enter game -----------------------------------------
   const handleFormAndEnterGame = async e => {
     e.preventDefault();
@@ -423,6 +467,7 @@ window.addEventListener('load', event => {
         game.style.display = 'flex';
         appendPlayerStatData();
         drawOasis();
+        drawMenu();
         // could add a character animation poofing into existence
       };
     }, 500);
@@ -432,7 +477,9 @@ window.addEventListener('load', event => {
 
   // event listeners -------------------------------------------------------
   addEventListener('mousedown', e => {
-
+    // move items around map and how they stack, collision and water behavior
+    // move item into equipment section
+    // handle equipping and unequipping
   });
 
   addEventListener('mousemove', e => {
