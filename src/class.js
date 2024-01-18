@@ -48,28 +48,25 @@ export class Tile extends GameObject {
 };
 
 export class Item extends GameObject {
-  constructor({ id, type, name, sx, sy, dx, dy, scale }) {
-    super({ src: '../backend/assets/item_data/items.png' });
+  constructor(id, type, name, { source, coordinates }, scale) {
+    super({ src: '../backend/assets/item_data/items.png', source, coordinates });
     this.id = id;
     this.type = type;
     this.name = name;
-    this.sx = sx;
-    this.sy = sy;
-    this.dx = dx;
-    this.dy = dy;
     this.scale = scale;
+    this.size = 64;
     this.isDragging = false;
   };
 
   draw = (ctx) => {
     ctx.drawImage(
       this.image,
-      this.sx,
-      this.sy,
+      this.source.sx,
+      this.source.sy,
       this.size,
       this.size,
-      this.dx,
-      this.dy,
+      this.coordinates.dx,
+      this.coordinates.dy,
       this.size * this.scale,
       this.size * this.scale
     );

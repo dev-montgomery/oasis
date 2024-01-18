@@ -23,13 +23,78 @@ window.addEventListener('load', event => {
   
   const form = document.querySelector('.form-container');
   const login = document.querySelector('#login-form');
+  const formInputField = document.querySelector('#playername');
+  formInputField.focus();
 
+  const equipLocations = {
+    neck: { x: screen.width + 16, y: 16 },
+    head: { x: screen.width + 80, y: 16 },
+    back: { x: screen.width + 144, y: 16 },
+    chest: { x: screen.width + 16, y: 80 },
+    offhand: { x: screen.width + 144, y: 80 },
+    mainhand: { x: screen.width + 16, y: 144 },
+    legs: { x: screen.width + 80, y: 144 },
+    feet: { x: screen.width + 144, y: 144 }    
+  };
+  const menuButtonPositions = {
+    mapbtn: { sx: 0, sy: 320, dx: screen.width + 16, dy: 208, size: 32 },
+    inventorybtn: { sx: 32, sy: 320, dx: screen.width + 80, dy: 208, size: 32 },
+    listbtn: { sx: 64, sy: 320, dx: screen.width + 142, dy: 208, size: 32 },
+    active: { sx: 96, sy: 320 }
+  };
+  const stancesButtonPositions = {
+    attackInactive: { sx: 96, sy: 352, dx: screen.width, dy: 640, size: 32, scale: 2 },
+    attackActive: { sx: 96, sy: 384, dx: screen.width, dy: 640, size: 32, scale: 2 },
+    defendInactive: { sx: 128, sy: 352, dx: screen.width + 64, dy: 640, size: 32, scale: 2 },
+    defendActive: { sx: 128, sy: 384, dx: screen.width + 64, dy: 640, size: 32, scale: 2 },
+    passiveInactive: { sx: 160, sy: 352, dx: screen.width + 128, dy: 640, size: 32, scale: 2 },
+    passiveActive: { sx: 160, sy: 384, dx: screen.width + 128, dy: 640, size: 32, scale: 2 },
+  };
+  const mapSectionScrollButtonPositions = {
+    inactiveDown : { sx: 0, sy: 320, dx: screen.width + 160, dy: 288, size: 32 },
+    inactiveUp: { sx: 32, sy: 320, dx: screen.width + 160, dy: 256, size: 32 },
+    activeDown: { sx: 0, sy: 352, dx: screen.width + 160, dy: 288, size: 32 },
+    activeUp: { sx: 32, sy: 352, dx: screen.width + 160, dy: 256, size: 32 },
+  };
+  const containerPositions = {
+    backpack: { x: 0, y: 32 * 8, size: 32 },
+    labeledbackpack: { x: 0, y: 32 * 9, size: 32 },
+    enchantedbackpack: { x: 32, y: 32 * 8, size: 32 },
+    labeledenchantedbackpack: { x: 32, y: 32 * 9, size: 32 },
+    depot: { x: 64, y: 32 * 8, size: 32 },
+  };
+  
+  let menuToggle = 'inventory';
   let chatbox = false;
+  
   let boundaries = [];
   let wateries = [];
   let uppermost = [];
 
-  // init player | npcs | items --------------------------------------------
+  let equipped = [];
+  let inventory = [];
+  let items = [];
+
+  // load assets -----------------------------------------------------------
+  const genus = new Image();
+  genus.src = './backend/assets/map_data/spritesheet-genus.png';
+  genus.onload = () => {
+    genus.loaded = true;
+    genus.size = 64;
+    genus.spritesheetFrames = 25;
+    genus.mapFrameDimensions = { row: 160, col: 140 };
+  };
+
+  const menu = new Image();
+  menu.src = './backend/assets/menu.png';
+  menu.containers = containerPositions;
+  menu.toggles = {
+    menuSection: menuButtonPositions,
+    stanceSection: stancesButtonPositions,
+    mapContentsSection: mapSectionScrollButtonPositions,
+  };
+
+  // init player | npcs --------------------------------------------
   const player = new Player({ 
     source: { 
       downward: { sx: 0, sy: 0 }, 
@@ -79,13 +144,6 @@ window.addEventListener('load', event => {
     await postPlayerData(resources.playerData);
   };
 
-  const drawTile = (image, tile) => {
-    const { sx, sy } = tile.source;
-    const { dx, dy } = tile.coordinates;
-    const size = tile.size;
-    ctx.drawImage(image, sx, sy, size, size, dx, dy, size, size);
-  };
-
   const createPlayerStatElement = (label, value) => {
     const statElement = document.createElement('li');
 
@@ -125,6 +183,13 @@ window.addEventListener('load', event => {
     playerStatsContainer.appendChild(playerDataLevels);
     playerStatsContainer.appendChild(playerDataSkills);
   };
+  // -------------
+  const drawTile = (image, tile) => {
+    const { sx, sy } = tile.source;
+    const { dx, dy } = tile.coordinates;
+    const size = tile.size;
+    ctx.drawImage(image, sx, sy, size, size, dx, dy, size, size);
+  };
 
   const detectCollision = (objects, newX, newY) => {
     for (let i = 0; i < objects.length; i++) {
@@ -148,27 +213,116 @@ window.addEventListener('load', event => {
   const waterDetect = (newX, newY) => {
     return detectCollision(wateries, newX, newY);
   };
+  // --------------
+  const initItem = (id, type, name, sx, sy, dx, dy, scale = 1) => {
+    const rpgItem = new Item(id, type, name, { source: { sx, sy }, coordinates: { dx, dy } }, scale);
+    
+    const category = resources.itemData[type];
+    if (category && category[name]) {
+      Object.assign(rpgItem, category[name]);
+    };
+  
+    // console.log(`${name} created.`, rpgItem);
+  
+    if (isInEquipmentSection(rpgItem)) {
+      equipped.push(rpgItem);
+    // } else if (isInInventorySection(rpgItem)) {
+    //   inventory.push(rpgItem);
+    } else {
+      items.push(rpgItem);
+    };
+  };
 
-  function updateWorldLocations(valX, valY) {
+  const randomID = (input) => {
+    return Math.random() * input;
+  };
+
+  const itemsToPlayWith = () => {
+    // item 1
+    initItem(randomID(items.length + 1), 'head', 'hood', 0, 0, 256, 256);
+    // item 2
+    initItem(randomID(items.length + 1), 'chest', 'tunic', 64, 0, 256, 320);
+    // item 3
+    initItem(randomID(items.length + 1), 'legs', 'pants', 128, 0, 256, 384);
+    // item 4
+    initItem(randomID(items.length + 1), 'neck', 'fanged', 448, 128, 192, 256);
+    // item 5
+    initItem(randomID(items.length + 1), 'mainhand', 'sword', 320, 64, 192, 320);
+    // item 6
+    initItem(randomID(items.length + 1), 'offhand', 'kite', 576, 64, 320, 320);
+    // item 7
+    initItem(randomID(items.length + 1), 'feet', 'shoes', 192, 0, 256, 448);
+    // item 8
+    initItem(randomID(items.length + 1), 'back', 'backpack', 0, 448, 320, 256);
+    // item 9
+    initItem(randomID(items.length + 1), 'head', 'coif', 0, 128, 512, 256);
+    // item 10
+    initItem(randomID(items.length + 1), 'chest', 'chainmail', 64, 128, 512, 320);
+    // item 11
+    initItem(randomID(items.length + 1), 'legs', 'chainmail kilt', 128, 128, 512, 384);
+    // item 12
+    initItem(randomID(items.length + 1), 'neck', 'silver', 512, 128, 448, 256);
+    // item 13
+    initItem(randomID(items.length + 1), 'mainhand', 'spear', 512, 64, 448, 320);
+    // item 14
+    initItem(randomID(items.length + 1), 'offhand', 'heater', 576, 128, 576, 320);
+    // item 15
+    initItem(randomID(items.length + 1), 'feet', 'chausses', 192, 128, 512, 448);
+    // item 16
+    initItem(randomID(items.length + 1), 'back', 'enchantedbackpack', 64, 448, 576, 384);
+  };
+
+  const updateWorldLocations = (valX, valY) => {
     player.data.details.location.x += valX;
     player.data.details.location.y += valY;
   
     // Update object locations in the world
-    // items.forEach(item => {
-    //   item.dx -= valX * item.size * item.scale;
-    //   item.dy -= valY * item.size * item.scale;
-    // });
+    items.forEach(item => {
+      item.coordinates.dx -= valX * item.size * item.scale;
+      item.coordinates.dy -= valY * item.size * item.scale;
+    });
   };
-
-  // load assets -----------------------------------------------------------
-  const genus = new Image();
-  genus.src = './backend/assets/map_data/spritesheet-genus.png';
-  genus.onload = () => {
-    genus.loaded = true;
-    genus.size = 64;
-    genus.spritesheetFrames = 25;
-    genus.mapFrameDimensions = { row: 160, col: 140 };
+  // ---------------
+  const isPointInsideRectangle = (pointX, pointY, rectangle) => {
+    return (
+      pointX >= rectangle.x &&
+      pointX <= rectangle.x + rectangle.width &&
+      pointY >= rectangle.y &&
+      pointY <= rectangle.y + rectangle.height
+    );
   };
+  
+  const isMouseOverButton = (mouseX, mouseY, button) => isPointInsideRectangle(mouseX, mouseY, button);
+  
+  const isInEquipmentSection = (item) => {
+    return isPointInsideRectangle(item.dx, item.dy, {
+      x: screen.width,
+      y: 0,
+      width: 192,
+      height: 192
+    });
+  };
+  
+  const isInInventorySection = (item) => {
+    const inventorySection = inventoryContainerSizes.inventorySection;
+    return isPointInsideRectangle(item.dx, item.dy, inventorySection);
+  };
+  
+  const isMouseOverItem = (mouseX, mouseY, item) => {
+    return isPointInsideRectangle(mouseX, mouseY, {
+      x: item.dx,
+      y: item.dy,
+      width: item.size * item.scale,
+      height: item.size * item.scale
+    });
+  };
+  // equip functions
+// const btns = menu.toggles.menuSection;
+    // mapbtn: { sx: 0, sy: 320, dx: screen.width + 16, dy: 208, size: 32 },
+    // inventorybtn: { sx: 32, sy: 320, dx: screen.width + 80, dy: 208, size: 32 },
+    // listbtn: { sx: 64, sy: 320, dx: screen.width + 142, dy: 208, size: 32 },
+    // active: { sx: 96, sy: 320 }
+  // inventory functions
 
   // draw functions -------------------------------------------------------- 
   const drawOasis = (currentMap = resources.mapData.isLoaded && resources.mapData.genus01.layers) => {
@@ -222,6 +376,17 @@ window.addEventListener('load', event => {
       });
     });
     
+    items.forEach(item => {
+      if (
+        item.coordinates.dx >= 0 &&
+        item.coordinates.dx + item.size <= screen.width &&
+        item.coordinates.dy >= 0 &&
+        item.coordinates.dy + item.size <= screen.height
+      ) {
+        item.draw(ctx);
+      };
+    });
+
     player.draw(ctx);
     uppermost.forEach(tile => {
       drawTile(
@@ -233,6 +398,44 @@ window.addEventListener('load', event => {
         }
       );
     });
+  };
+
+  const drawMenu = () => {
+    switch(menuToggle) {
+      case 'map':
+        // draw minimap
+        // draw button toggle
+        // draw minimap contents
+        // append text
+        break;
+      case 'inventory':
+        drawEquipmentSection();
+        // draw button toggle
+        // draw inventory
+        break;
+      case 'tracking':
+        // draw who is being tracked
+        // draw button toggle
+        // draw list
+        // draw stance
+        break;
+      default:
+        break;
+    };
+  };
+
+  const drawEquipmentSection = () => {
+    ctx.clearRect(screen.width, 0, 192, 192);
+    ctx.drawImage(menu, 0, 0, 192, 192, screen.width, 0, 192, 192);
+
+    const equippedItems = player.data.details.equipped;
+    for (const piece in equippedItems) {
+      if (equippedItems[piece] !== 'empty') {
+        const item = equippedItems[piece];
+        initItem(item.id, item.type, item.name, item.source.sx, item.source.sy, item.coordinates.dx, item.coordinates.dy, item.scale);
+        item.draw(ctx);
+      };
+    };
   };
 
   // handle form and... enter game -----------------------------------------
@@ -264,14 +467,19 @@ window.addEventListener('load', event => {
         game.style.display = 'flex';
         appendPlayerStatData();
         drawOasis();
+        drawMenu();
         // could add a character animation poofing into existence
       };
     }, 500);
   };
 
+  itemsToPlayWith(); // init items
+
   // event listeners -------------------------------------------------------
   addEventListener('mousedown', e => {
-
+    // move items around map and how they stack, collision and water behavior
+    // move item into equipment section
+    // handle equipping and unequipping
   });
 
   addEventListener('mousemove', e => {
