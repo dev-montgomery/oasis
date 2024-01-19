@@ -22,7 +22,8 @@ window.addEventListener('load', event => {
   const API_URL = 'http://localhost:4000/playerdata';
   
   const form = document.querySelector('.form-container');
-  const login = document.querySelector('#login-form');
+  const game = document.querySelector('.game-container');
+
   const formInputField = document.querySelector('#playername');
   formInputField.focus();
 
@@ -62,6 +63,12 @@ window.addEventListener('load', event => {
     enchantedbackpack: { x: 32, y: 32 * 8, size: 32 },
     labeledenchantedbackpack: { x: 32, y: 32 * 9, size: 32 },
     depot: { x: 64, y: 32 * 8, size: 32 },
+  };
+  const rangeOfPlayer = { 
+    x: screen.width / 2 - 96, 
+    y: screen.width / 2 - 96, 
+    width: 192, 
+    height: 192 
   };
   
   let menuToggle = 'inventory';
@@ -282,7 +289,7 @@ window.addEventListener('load', event => {
       item.coordinates.dy -= valY * item.size * item.scale;
     });
   };
-  // ---------------
+  // ---------------  
   const isPointInsideRectangle = (pointX, pointY, rectangle) => {
     return (
       pointX >= rectangle.x &&
@@ -291,6 +298,8 @@ window.addEventListener('load', event => {
       pointY <= rectangle.y + rectangle.height
     );
   };
+
+  const itemIsInRangeOfPlayer = (objX, objY, rangeOfPlayer) => isPointInsideRectangle(mouseX, mouseY, rangeOfPlayer);
   
   const isMouseOverButton = (mouseX, mouseY, button) => isPointInsideRectangle(mouseX, mouseY, button);
   
@@ -310,13 +319,87 @@ window.addEventListener('load', event => {
   
   const isMouseOverItem = (mouseX, mouseY, item) => {
     return isPointInsideRectangle(mouseX, mouseY, {
-      x: item.dx,
-      y: item.dy,
+      x: item.coordinates.dx,
+      y: item.coordinates.dy,
       width: item.size * item.scale,
       height: item.size * item.scale
     });
   };
+
+  const findItemUnderMouse = (mouseX, mouseY, array) => {
+    // canvas.style.cursor = 'grab';
+    for (let i = array.length - 1 ; i >= 0 ; i--) {
+      const currentItem = array[i];
+      if (isMouseOverItem(mouseX, mouseY, currentItem)) {
+        return currentItem;
+      };
+    };
+    return null;
+  };
   // equip functions
+  const handleEquipping = (item) => {
+    if (menuToggle === 'inventory') {
+      const equipSlot = player.data.details.equipped;
+      const slotLocations = equipLocations;
+  
+      // Helper function to reset the previous equipped item
+      const resetPreviousItem = (type) => {
+        if (equipSlot[type] !== 'empty') {
+          const prev = equipped.find(gear => gear.id === equipSlot[type].id);
+          prev.dx = originalItemPosition.x;
+          prev.dy = originalItemPosition.y;
+          prev.scale = 1;
+          items.push(prev);
+          equipped.splice(equipped.indexOf(prev), 1);
+        }
+      };
+  
+      const equipItem = (type) => {
+        resetPreviousItem(type);
+        equipSlot[type] = item;
+        item.dx = slotLocations[type].x;
+        item.dy = slotLocations[type].y;
+        item.scale = 0.5;
+        equipped.push(item);
+        items.splice(items.indexOf(item), 1);
+        drawEquipmentSection();
+        if (type === 'back') drawInventorySection();
+      };
+  
+      switch(item.type) {
+        case 'neck':
+        case 'head':
+        case 'back':
+        case 'chest':
+        case 'offhand':
+        case 'mainhand':
+        case 'legs':
+        case 'feet':
+          equipItem(item.type);
+          break;
+        default: break;
+      }
+    }
+  };
+  
+  const resetEquipmentSlot = (item) => {
+    const equipSlot = player.data.details.equipped;
+    switch(item.type) {
+      case 'neck':
+      case 'head':
+      case 'back':
+      case 'chest':
+      case 'offhand':
+      case 'mainhand':
+      case 'legs':
+      case 'feet':
+        equipSlot[item.type] = 'empty';
+        break;
+      default: break;
+    };
+  };
+
+  
 // const btns = menu.toggles.menuSection;
     // mapbtn: { sx: 0, sy: 320, dx: screen.width + 16, dy: 208, size: 32 },
     // inventorybtn: { sx: 32, sy: 320, dx: screen.width + 80, dy: 208, size: 32 },
@@ -324,6 +407,24 @@ window.addEventListener('load', event => {
     // active: { sx: 96, sy: 320 }
   // inventory functions
 
+  const handleDragging = (item) => {
+    let posX = e.clientX - canvas.getBoundingClientRect().left;
+    let posY = e.clientY - canvas.getBoundingClientRect().top;
+    if (isInsideScreenBounds(item)) {
+      item.coordinates.dx = Math.floor(posX / 64) * 64;
+      item.coordinates.dy = Math.floor(posY / 64) * 64;
+      item.isDragging = false;
+    };
+  };
+
+  const isInsideScreenBounds = (item) => {
+    return (
+      item.coordinates.dx + item.size < screen.width &&
+      item.coordinates.dx > 0 &&
+      item.coordinates.dy + item.size < screen.height &&
+      item.coordinates.dy > 0
+    );
+  };
   // draw functions -------------------------------------------------------- 
   const drawOasis = (currentMap = resources.mapData.isLoaded && resources.mapData.genus01.layers) => {
     const upperTiles = [ 576, 577, 578, 579, 601, 602, 603, 604 ];
@@ -461,9 +562,8 @@ window.addEventListener('load', event => {
     setTimeout(() => {
       if (genus.loaded && player.loaded) {
         document.querySelector('body').style.background = '#464646';
-        // do something else with the background
         canvas.style.background = '#464646';
-        const game = document.querySelector('#game-container');
+        game.classList.remove('hidden');
         game.style.display = 'flex';
         appendPlayerStatData();
         drawOasis();
@@ -478,6 +578,21 @@ window.addEventListener('load', event => {
   // event listeners -------------------------------------------------------
   addEventListener('mousedown', e => {
     // move items around map and how they stack, collision and water behavior
+    if (form.closed) {
+      const mouseX = e.clientX - canvas.getBoundingClientRect().left;
+      const mouseY = e.clientY - canvas.getBoundingClientRect().top;
+      const selectedItem = findItemUnderMouse(mouseX, mouseY, items);
+      // const equippedItem = findItemUnderMouse(mouseX, mouseY, equipped);
+      const position = {};
+
+      if (selectedItem && itemIsInRangeOfPlayer(selectedItem.coordinates.dx, selectedItem.coordinates.dy)) {
+        selectedItem.isDragging = true;
+        position = {
+          x: selectedItem.coordinates.dx,
+          y: selectedItem.coordinates.dy
+        };
+      };
+    };
     // move item into equipment section
     // handle equipping and unequipping
   });
@@ -487,7 +602,13 @@ window.addEventListener('load', event => {
   });
 
   addEventListener('mouseup', e => {
-
+    if (form.closed) {
+      items.forEach(item => {
+        if (item.isDragging) {
+          handleDragging(item);
+        };
+      });
+    };
   });
 
   addEventListener('keydown', e => {
@@ -541,9 +662,10 @@ window.addEventListener('load', event => {
     drawOasis();
   });
 
+  const login = document.querySelector('#login-form');
+  login.addEventListener('submit', handleFormAndEnterGame);
+
   addEventListener('beforeunload', async (e) => {
     await updateAndPostPlayerData();
   });
-
-  login.addEventListener('submit', handleFormAndEnterGame);
 });
