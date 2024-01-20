@@ -66,7 +66,7 @@ window.addEventListener('load', event => {
   };
   const rangeOfPlayer = { 
     x: screen.width / 2 - 96, 
-    y: screen.width / 2 - 96, 
+    y: screen.height / 2 - 96, 
     width: 192, 
     height: 192 
   };
@@ -298,8 +298,6 @@ window.addEventListener('load', event => {
       pointY <= rectangle.y + rectangle.height
     );
   };
-
-  const itemIsInRangeOfPlayer = (objX, objY, rangeOfPlayer) => isPointInsideRectangle(mouseX, mouseY, rangeOfPlayer);
   
   const isMouseOverButton = (mouseX, mouseY, button) => isPointInsideRectangle(mouseX, mouseY, button);
   
@@ -327,7 +325,6 @@ window.addEventListener('load', event => {
   };
 
   const findItemUnderMouse = (mouseX, mouseY, array) => {
-    // canvas.style.cursor = 'grab';
     for (let i = array.length - 1 ; i >= 0 ; i--) {
       const currentItem = array[i];
       if (isMouseOverItem(mouseX, mouseY, currentItem)) {
@@ -398,7 +395,6 @@ window.addEventListener('load', event => {
       default: break;
     };
   };
-
   
 // const btns = menu.toggles.menuSection;
     // mapbtn: { sx: 0, sy: 320, dx: screen.width + 16, dy: 208, size: 32 },
@@ -406,16 +402,6 @@ window.addEventListener('load', event => {
     // listbtn: { sx: 64, sy: 320, dx: screen.width + 142, dy: 208, size: 32 },
     // active: { sx: 96, sy: 320 }
   // inventory functions
-
-  const handleDragging = (item) => {
-    let posX = e.clientX - canvas.getBoundingClientRect().left;
-    let posY = e.clientY - canvas.getBoundingClientRect().top;
-    if (isInsideScreenBounds(item)) {
-      item.coordinates.dx = Math.floor(posX / 64) * 64;
-      item.coordinates.dy = Math.floor(posY / 64) * 64;
-      item.isDragging = false;
-    };
-  };
 
   const isInsideScreenBounds = (item) => {
     return (
@@ -582,15 +568,17 @@ window.addEventListener('load', event => {
       const mouseX = e.clientX - canvas.getBoundingClientRect().left;
       const mouseY = e.clientY - canvas.getBoundingClientRect().top;
       const selectedItem = findItemUnderMouse(mouseX, mouseY, items);
+      
       // const equippedItem = findItemUnderMouse(mouseX, mouseY, equipped);
       const position = {};
-
-      if (selectedItem && itemIsInRangeOfPlayer(selectedItem.coordinates.dx, selectedItem.coordinates.dy)) {
+      
+      if (selectedItem && isPointInsideRectangle(selectedItem.coordinates.dx, selectedItem.coordinates.dy, rangeOfPlayer)) {
         selectedItem.isDragging = true;
-        position = {
-          x: selectedItem.coordinates.dx,
-          y: selectedItem.coordinates.dy
-        };
+
+        position.x = selectedItem.coordinates.dx,
+        position.y = selectedItem.coordinates.dy
+
+        canvas.style.cursor = 'grabbing';
       };
     };
     // move item into equipment section
@@ -598,10 +586,36 @@ window.addEventListener('load', event => {
   });
 
   addEventListener('mousemove', e => {
+    if (form.closed) {
+      const mouseX = e.clientX - canvas.getBoundingClientRect().left;
+      const mouseY = e.clientY - canvas.getBoundingClientRect().top;
+      const selectedItem = findItemUnderMouse(mouseX, mouseY, items);
 
+      if (!selectedItem.isDragging && canvas.style.cursor !== 'grabbing') {
+        canvas.style.cursor = 'crosshair';
+      };
+      // default cursor when not grabbing and not over item
+      if (selectedItem.isDragging) {
+        items.splice(items.indexOf(selectedItem), 1);
+        items.push(selectedItem);      
+      };
+    };
   });
 
   addEventListener('mouseup', e => {
+    const handleDragging = (item) => {
+      let posX = e.clientX - canvas.getBoundingClientRect().left;
+      let posY = e.clientY - canvas.getBoundingClientRect().top;
+      if (isInsideScreenBounds(item)) {
+        item.coordinates.dx = Math.floor(posX / 64) * 64;
+        item.coordinates.dy = Math.floor(posY / 64) * 64;
+        item.isDragging = false;
+  
+        drawOasis();
+      };
+      canvas.style.cursor = 'default';
+    };
+
     if (form.closed) {
       items.forEach(item => {
         if (item.isDragging) {
