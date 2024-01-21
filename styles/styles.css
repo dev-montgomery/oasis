@@ -99,7 +99,7 @@ body {
 }
 
 /* Game Container */
-#game-container {
+.game-container {
   flex-direction: row;
   justify-content: center;
   align-items: center;
@@ -107,26 +107,37 @@ body {
 }
 
 /* Lefthand-side */
-#playerdata-container {
+.playerdata-container {
   display: flex;
   flex-direction: column;
   height: 704px;
   width: 192px;   
   background: rgb(46, 46, 46);
   color: #ccc;
+  line-height: 2;
   padding: 1rem;
   font-size: 1.6rem;
 }
 
-#playerdata-container .box {
+.playerdata-container .box {
   font-size: 1rem;
-  padding-top: 1rem;
+  padding-top: 0.2rem;
+  padding-bottom: 1rem;
 }
 
-#playerdata-container .box li {
+.playerdata-container .box li {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+}
+
+/* Utility Classes */
+.noselect {
+  user-select: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
 }
 
 .hidden {

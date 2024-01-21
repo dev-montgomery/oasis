@@ -167,7 +167,7 @@ window.addEventListener('load', event => {
   };
 
   const appendPlayerStatData = () => {
-    const playerStatsContainer = document.getElementById('playerdata-container');
+    const playerStatsContainer = document.querySelector('.playerdata-container');
     playerStatsContainer.innerHTML = '';
 
     const playerDataLevels = document.createElement('ul');
@@ -529,7 +529,7 @@ window.addEventListener('load', event => {
   const handleFormAndEnterGame = async e => {
     e.preventDefault();
 
-    const playerName = document.getElementById('playername').value;
+    const playerName = document.querySelector('#playername').value;
     player.data = resources.createPlayer(playerName);
 
     form.style.visibility = 'hidden';
@@ -592,7 +592,7 @@ window.addEventListener('load', event => {
       const selectedItem = findItemUnderMouse(mouseX, mouseY, items);
 
       if (!selectedItem && canvas.style.cursor !== 'grabbing') {
-        canvas.style.cursor = 'default';
+        canvas.style.cursor = 'crosshair';
       };
 
       if (!selectedItem.isDragging && canvas.style.cursor !== 'grabbing') {
@@ -616,19 +616,21 @@ window.addEventListener('load', event => {
         if (!collisionDetect(dx, dy) && !waterDetect(dx, dy)) {
           item.coordinates = { dx, dy };
           item.isDragging = false;
+          canvas.style.cursor = 'grab';
         };
 
         if (collisionDetect(dx, dy)) {
           item.isDragging = false;
+          canvas.style.cursor = 'crosshair';
         };
         
         if (waterDetect(dx, dy)) {
           items.splice(items.indexOf(item), 1);
+          canvas.style.cursor = 'crosshair';
         };
 
         drawOasis();
       };
-      canvas.style.cursor = 'grab';
     };
 
     if (form.closed) {
@@ -692,7 +694,7 @@ window.addEventListener('load', event => {
   });
 
   addEventListener('DOMContentLoaded', e => {
-    const loadingScreen = document.getElementById('loading-container');
+    const loadingScreen = document.querySelector('.loading-container');
     // const loadingProgress = document.getElementById('loading-progress');
     const content = document.getElementById('form-container');
   
