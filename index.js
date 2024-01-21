@@ -190,7 +190,7 @@ window.addEventListener('load', event => {
     playerStatsContainer.appendChild(playerDataLevels);
     playerStatsContainer.appendChild(playerDataSkills);
   };
-  // -------------
+  // --------------------------------
   const drawTile = (image, tile) => {
     const { sx, sy } = tile.source;
     const { dx, dy } = tile.coordinates;
@@ -220,7 +220,7 @@ window.addEventListener('load', event => {
   const waterDetect = (newX, newY) => {
     return detectCollision(wateries, newX, newY);
   };
-  // --------------
+  // --------------------------------
   const initItem = (id, type, name, sx, sy, dx, dy, scale = 1) => {
     const rpgItem = new Item(id, type, name, { source: { sx, sy }, coordinates: { dx, dy } }, scale);
     
@@ -289,7 +289,7 @@ window.addEventListener('load', event => {
       item.coordinates.dy -= valY * item.size * item.scale;
     });
   };
-  // ---------------  
+  // --------------------------------
   const isPointInsideRectangle = (pointX, pointY, rectangle) => {
     return (
       pointX >= rectangle.x &&
@@ -525,7 +525,7 @@ window.addEventListener('load', event => {
     };
   };
 
-  // handle form and... enter game -----------------------------------------
+  // handle form and enter game -----------------------------------------
   const handleFormAndEnterGame = async e => {
     e.preventDefault();
 
@@ -559,7 +559,7 @@ window.addEventListener('load', event => {
     }, 500);
   };
 
-  itemsToPlayWith(); // init items
+  itemsToPlayWith(); // init items to play with
 
   // event listeners -------------------------------------------------------
   addEventListener('mousedown', e => {
@@ -591,10 +591,14 @@ window.addEventListener('load', event => {
       const mouseY = e.clientY - canvas.getBoundingClientRect().top;
       const selectedItem = findItemUnderMouse(mouseX, mouseY, items);
 
-      if (!selectedItem.isDragging && canvas.style.cursor !== 'grabbing') {
-        canvas.style.cursor = 'crosshair';
+      if (!selectedItem && canvas.style.cursor !== 'grabbing') {
+        canvas.style.cursor = 'default';
       };
-      // default cursor when not grabbing and not over item
+
+      if (!selectedItem.isDragging && canvas.style.cursor !== 'grabbing') {
+        canvas.style.cursor = 'grab';
+      };
+
       if (selectedItem.isDragging) {
         items.splice(items.indexOf(selectedItem), 1);
         items.push(selectedItem);      
@@ -606,14 +610,25 @@ window.addEventListener('load', event => {
     const handleDragging = (item) => {
       let posX = e.clientX - canvas.getBoundingClientRect().left;
       let posY = e.clientY - canvas.getBoundingClientRect().top;
+      let dx = Math.floor(posX / 64) * 64;
+      let dy = Math.floor(posY / 64) * 64;
       if (isInsideScreenBounds(item)) {
-        item.coordinates.dx = Math.floor(posX / 64) * 64;
-        item.coordinates.dy = Math.floor(posY / 64) * 64;
-        item.isDragging = false;
-  
+        if (!collisionDetect(dx, dy) && !waterDetect(dx, dy)) {
+          item.coordinates = { dx, dy };
+          item.isDragging = false;
+        };
+
+        if (collisionDetect(dx, dy)) {
+          item.isDragging = false;
+        };
+        
+        if (waterDetect(dx, dy)) {
+          items.splice(items.indexOf(item), 1);
+        };
+
         drawOasis();
       };
-      canvas.style.cursor = 'default';
+      canvas.style.cursor = 'grab';
     };
 
     if (form.closed) {
@@ -674,6 +689,52 @@ window.addEventListener('load', event => {
     }, player.speed);
    
     drawOasis();
+  });
+
+  addEventListener('DOMContentLoaded', e => {
+    const loadingScreen = document.getElementById('loading-container');
+    // const loadingProgress = document.getElementById('loading-progress');
+    const content = document.getElementById('form-container');
+  
+    const backgroundImage = new Image();
+    backgroundImage.src = './backend/assets/background.jpg';
+  
+    backgroundImage.onload = function () {
+      // Image is loaded
+      loadingScreen.style.display = 'none';
+      content.style.display = 'flex';
+      content.classList.remove('hidden');
+    };
+
+    // setTimeout(() => {
+    //   backgroundImage.onload();
+    // }, 1000)
+  
+    // let loadedCount = 0;
+    // const resourceCount = 1; // Change this based on the number of resources to load
+  
+    // Simulate loading progress
+    // function updateLoadingProgress() {
+    //   loadedCount++;
+    //   const progress = Math.floor((loadedCount / resourceCount) * 100);
+    //   loadingProgress.textContent = `Loading... ${progress}%`;
+  
+    //   if (loadedCount === resourceCount) {
+    //     // All resources are loaded
+    //     backgroundImage.onload(); // Trigger onload event manually
+    //   }
+    // }
+  
+    // Simulate loading other resources (if any)
+    // You can add more resources and call updateLoadingProgress() for each
+    // For example:
+    // const anotherResource = new Image();
+    // anotherResource.src = 'another-resource.jpg';
+    // anotherResource.onload = updateLoadingProgress;
+    // ...
+  
+    // Call updateLoadingProgress for the initial resource (background image)
+    // backgroundImage.onload = updateLoadingProgress;
   });
 
   const login = document.querySelector('#login-form');
