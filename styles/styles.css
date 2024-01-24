@@ -47,7 +47,8 @@ p, h1, h2, h3, h4, h5, h6 {
 
 /* CSS Styles */
 body {
-  background: url('../backend/assets/background.jpg') center/cover no-repeat;
+  background: #474747;
+  color: #fff;
 }
 
 /* form styles */
