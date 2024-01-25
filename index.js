@@ -66,9 +66,31 @@ const rangeOfPlayer = {
   height: 192
 }; 
 
+const background = {
+  image: new Image(),
+  src: './backend/assets/background.jpg',
+  loaded: false
+};
+
+const genus = {
+  image: new Image(),
+  src: './backend/assets/map_data/spritesheet-genus.png',
+  size: 64,
+  spritesheetFrames: 25,
+  mapFrameDimensions: { row: 160, col: 140 },
+  loaded: false
+};
+
+const menu = {
+  image: new Image(),
+  src: './backend/assets/menu.png',
+  containers: containerPositions,
+  toggles: { menuSection: menuButtonPositions, stanceSection: stancesButtonPositions, mapContentsSection: mapSectionScrollButtonPositions },
+  loaded: false
+};
+
 let menuToggle = 'inventory';
 let chatbox = false;
-let imageAssets = [];
 
 let boundaries = [];
 let wateries = [];
@@ -97,6 +119,22 @@ player.loadImage().then(() => {
 });
 
 // utility functions -----------------------------------------------------
+const handleLoading = () => {
+  const loadScreen = document.querySelector('.loading-container');
+  const progress = document.querySelector('.loading-progress');
+
+  const loadedAssets = [background, genus, menu].filter(asset => asset.loaded);
+  const percentage = (loadedAssets.length / 3) * 100;
+
+  progress.textContent = `loading oasis ... ${percentage.toFixed(2)}%`;
+  
+  if (loadedAssets.length === 3) {
+    loadScreen.style.display = 'none';
+    form.classList.remove('hidden');
+    document.body.style.background = `url(${background.image.src}) center/cover no-repeat`;
+  };
+};
+// --------------------------------
 const updateLocalPlayerData = () => {
   const playerToUpdateIndex = resources.playerData.playerlist.findIndex(user => user.id === player.data.id);
   if (playerToUpdateIndex !== -1) {
@@ -443,7 +481,7 @@ const drawOasis = (currentMap = resources.mapData.isLoaded && resources.mapData.
           const boundary = new Tile({ coordinates: { dx, dy } });
           boundaries.push(boundary);
         } else {
-          drawTile(genus, { source: { sx, sy }, coordinates: { dx, dy }, size: 64 });
+          drawTile(genus.image, { source: { sx, sy }, coordinates: { dx, dy }, size: 64 });
         };
       };
     });
@@ -463,7 +501,7 @@ const drawOasis = (currentMap = resources.mapData.isLoaded && resources.mapData.
   player.draw(ctx);
   uppermost.forEach(tile => {
     drawTile(
-      genus, 
+      genus.image, 
       { 
         source: { sx: tile.source.sx, sy: tile.source.sy }, 
         coordinates: { dx: tile.coordinates.dx, dy: tile.coordinates.dy }, 
@@ -499,7 +537,7 @@ const drawMenu = () => {
 
 const drawEquipmentSection = () => {
   ctx.clearRect(screen.width, 0, 192, 192);
-  ctx.drawImage(menu, 0, 0, 192, 192, screen.width, 0, 192, 192);
+  ctx.drawImage(menu.image, 0, 0, 192, 192, screen.width, 0, 192, 192);
 
   const equippedItems = player.data.details.equipped;
   for (const piece in equippedItems) {
@@ -674,55 +712,24 @@ addEventListener('keydown', e => {
 });
 
 addEventListener("DOMContentLoaded", () => {
-  const progress = document.querySelector('.loading-progress');
-  const arrayOfAssets = [
-    { name: 'backgroundImage', src: './backend/assets/background.jpg' },
-    { name: 'genus', src: './backend/assets/map_data/spritesheet-genus.png', size: 64, spritesheetFrames: 25, mapFrameDimensions: { row: 160, col: 140 } },
-    { name: 'menu', src: './backend/assets/menu.png', containers: containerPositions, toggles: { menuSection: menuButtonPositions, stanceSection: stancesButtonPositions, mapContentsSection: mapSectionScrollButtonPositions } }
-  ];
-  
-  const totalAssets = arrayOfAssets.length;
-  let assetCount = 0;
-  
-  const loadAsset = asset => {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.onload = () => {
-        assetCount++;
-        updateProgress();
-        resolve({ ...asset, image: img });
-      };
-      img.onerror = reject;
-      img.src = asset.src
-    });
+  background.image.onload = () => {
+    background.loaded = true;
+    handleLoading();
   };
 
-  const preloadAssets = images => {
-    const promises = images.map(loadAsset);
-    return Promise.all(promises);
+  genus.image.onload = () => {
+    genus.loaded = true;
+    handleLoading();
   };
 
-  const updateProgress = () => {
-    const percentage = (assetCount / totalAssets).toFixed(2) * 100;
-    progress.textContent = `${percentage}% of the Oasis is ready`;
+  menu.image.onload = () => {
+    menu.loaded = true;
+    handleLoading();
   };
 
-  const completeLoading = (loadedAssets) => {
-    const loadingScreen = document.querySelector('.loading-container');
-    loadingScreen.style.display = 'none';
-
-    form.classList.remove('hidden');
-    
-    const background = loadedAssets.find(image => image.name === 'backgroundImage');
-    document.body.style.background = `url(${background.image.src}) center/cover no-repeat`;    
-  };
-
-  preloadAssets(arrayOfAssets).then(loadedAssets => {
-    imageAssets.push(...loadedAssets);
-    setTimeout(() => {
-      completeLoading(loadedAssets);
-    }, 100);
-  }).catch(error => console.error('Error loading assets', error));
+  background.image.src = background.src;
+  genus.image.src = genus.src;
+  menu.image.src = menu.src;
 });
 
 const login = document.querySelector('#login-form');
