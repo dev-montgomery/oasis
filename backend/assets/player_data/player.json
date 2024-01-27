@@ -49,11 +49,11 @@
               "dy": 16
             },
             "size": 64,
-            "id": 10.79521455022039,
+            "id": 7.7140262488759666,
             "type": "neck",
             "name": "silver",
             "scale": 0.5,
-            "isDragging": true
+            "isDragging": false
           },
           "head": {
             "image": {},
@@ -66,11 +66,11 @@
               "dy": 16
             },
             "size": 64,
-            "id": 2.748525418390395,
+            "id": 0.7461486974594047,
             "type": "head",
             "name": "coif",
             "scale": 0.5,
-            "isDragging": true
+            "isDragging": false
           },
           "back": {
             "image": {},
@@ -83,16 +83,16 @@
               "dy": 16
             },
             "size": 64,
-            "id": 1.6640135821010738,
+            "id": 2.6106422967485763,
             "type": "back",
             "name": "enchantedbackpack",
             "scale": 0.5,
-            "isDragging": true
+            "isDragging": false
           },
           "mainhand": {
             "image": {},
             "source": {
-              "sx": 512,
+              "sx": 320,
               "sy": 64
             },
             "coordinates": {
@@ -100,11 +100,11 @@
               "dy": 144
             },
             "size": 64,
-            "id": 7.072191419596617,
+            "id": 1.0472380748066723,
             "type": "mainhand",
-            "name": "spear",
+            "name": "sword",
             "scale": 0.5,
-            "isDragging": true
+            "isDragging": false
           },
           "offhand": {
             "image": {},
@@ -117,11 +117,11 @@
               "dy": 80
             },
             "size": 64,
-            "id": 8.447629109527043,
+            "id": 13.397849202937127,
             "type": "offhand",
             "name": "heater",
             "scale": 0.5,
-            "isDragging": true
+            "isDragging": false
           },
           "chest": {
             "image": {},
@@ -134,11 +134,11 @@
               "dy": 80
             },
             "size": 64,
-            "id": 8.164980978519578,
+            "id": 6.187175554223055,
             "type": "chest",
             "name": "chainmail",
             "scale": 0.5,
-            "isDragging": true
+            "isDragging": false
           },
           "legs": {
             "image": {},
@@ -151,11 +151,11 @@
               "dy": 144
             },
             "size": 64,
-            "id": 9.40225207883801,
+            "id": 0.5076594977132283,
             "type": "legs",
             "name": "chainmail kilt",
             "scale": 0.5,
-            "isDragging": true
+            "isDragging": false
           },
           "feet": {
             "image": {},
@@ -168,11 +168,11 @@
               "dy": 144
             },
             "size": 64,
-            "id": 12.817076584416876,
+            "id": 9.013640930513265,
             "type": "feet",
             "name": "chausses",
             "scale": 0.5,
-            "isDragging": true
+            "isDragging": false
           }
         },
         "inventory": [],
