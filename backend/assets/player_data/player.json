@@ -6,7 +6,7 @@
       "details": {
         "location": {
           "x": 93,
-          "y": 141
+          "y": 142
         },
         "lvls": {
           "lvl": 0,
@@ -38,14 +38,142 @@
           "fishingxp": 0
         },
         "equipped": {
-          "neck": "empty",
-          "head": "empty",
-          "back": "empty",
-          "mainhand": "empty",
-          "offhand": "empty",
-          "chest": "empty",
-          "legs": "empty",
-          "feet": "empty"
+          "neck": {
+            "image": {},
+            "source": {
+              "sx": 512,
+              "sy": 128
+            },
+            "coordinates": {
+              "dx": 848,
+              "dy": 16
+            },
+            "size": 64,
+            "id": 10.79521455022039,
+            "type": "neck",
+            "name": "silver",
+            "scale": 0.5,
+            "isDragging": true
+          },
+          "head": {
+            "image": {},
+            "source": {
+              "sx": 0,
+              "sy": 128
+            },
+            "coordinates": {
+              "dx": 912,
+              "dy": 16
+            },
+            "size": 64,
+            "id": 2.748525418390395,
+            "type": "head",
+            "name": "coif",
+            "scale": 0.5,
+            "isDragging": true
+          },
+          "back": {
+            "image": {},
+            "source": {
+              "sx": 64,
+              "sy": 448
+            },
+            "coordinates": {
+              "dx": 976,
+              "dy": 16
+            },
+            "size": 64,
+            "id": 1.6640135821010738,
+            "type": "back",
+            "name": "enchantedbackpack",
+            "scale": 0.5,
+            "isDragging": true
+          },
+          "mainhand": {
+            "image": {},
+            "source": {
+              "sx": 512,
+              "sy": 64
+            },
+            "coordinates": {
+              "dx": 848,
+              "dy": 144
+            },
+            "size": 64,
+            "id": 7.072191419596617,
+            "type": "mainhand",
+            "name": "spear",
+            "scale": 0.5,
+            "isDragging": true
+          },
+          "offhand": {
+            "image": {},
+            "source": {
+              "sx": 576,
+              "sy": 128
+            },
+            "coordinates": {
+              "dx": 976,
+              "dy": 80
+            },
+            "size": 64,
+            "id": 8.447629109527043,
+            "type": "offhand",
+            "name": "heater",
+            "scale": 0.5,
+            "isDragging": true
+          },
+          "chest": {
+            "image": {},
+            "source": {
+              "sx": 64,
+              "sy": 128
+            },
+            "coordinates": {
+              "dx": 848,
+              "dy": 80
+            },
+            "size": 64,
+            "id": 8.164980978519578,
+            "type": "chest",
+            "name": "chainmail",
+            "scale": 0.5,
+            "isDragging": true
+          },
+          "legs": {
+            "image": {},
+            "source": {
+              "sx": 128,
+              "sy": 128
+            },
+            "coordinates": {
+              "dx": 912,
+              "dy": 144
+            },
+            "size": 64,
+            "id": 9.40225207883801,
+            "type": "legs",
+            "name": "chainmail kilt",
+            "scale": 0.5,
+            "isDragging": true
+          },
+          "feet": {
+            "image": {},
+            "source": {
+              "sx": 192,
+              "sy": 128
+            },
+            "coordinates": {
+              "dx": 976,
+              "dy": 144
+            },
+            "size": 64,
+            "id": 12.817076584416876,
+            "type": "feet",
+            "name": "chausses",
+            "scale": 0.5,
+            "isDragging": true
+          }
         },
         "inventory": [],
         "stance": "defensive"

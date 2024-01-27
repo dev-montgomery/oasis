@@ -66,12 +66,12 @@ const rangeOfPlayer = {
   height: 192
 }; 
 
+// load assets ------------------------------------------------
 const background = {
   image: new Image(),
   src: './backend/assets/background.jpg',
   loaded: false
 };
-
 const genus = {
   image: new Image(),
   src: './backend/assets/map_data/spritesheet-genus.png',
@@ -80,7 +80,6 @@ const genus = {
   mapFrameDimensions: { row: 160, col: 140 },
   loaded: false
 };
-
 const menu = {
   image: new Image(),
   src: './backend/assets/menu.png',
@@ -88,7 +87,7 @@ const menu = {
   toggles: { menuSection: menuButtonPositions, stanceSection: stancesButtonPositions, mapContentsSection: mapSectionScrollButtonPositions },
   loaded: false
 };
-
+// ---------------------
 let menuToggle = 'inventory';
 let chatbox = false;
 
@@ -119,22 +118,6 @@ player.loadImage().then(() => {
 });
 
 // utility functions -----------------------------------------------------
-const handleLoading = () => {
-  const loadScreen = document.querySelector('.loading-container');
-  const progress = document.querySelector('.loading-progress');
-
-  const loadedAssets = [background, genus, menu].filter(asset => asset.loaded);
-  const percentage = (loadedAssets.length / 3) * 100;
-
-  progress.textContent = `loading oasis ... ${percentage.toFixed(2)}%`;
-  
-  if (loadedAssets.length === 3) {
-    loadScreen.style.display = 'none';
-    form.classList.remove('hidden');
-    document.body.style.background = `url(${background.image.src}) center/cover no-repeat`;
-  };
-};
-// --------------------------------
 const updateLocalPlayerData = () => {
   const playerToUpdateIndex = resources.playerData.playerlist.findIndex(user => user.id === player.data.id);
   if (playerToUpdateIndex !== -1) {
@@ -205,36 +188,22 @@ const appendPlayerStatData = () => {
   playerStatsContainer.appendChild(playerDataLevels);
   playerStatsContainer.appendChild(playerDataSkills);
 };
-// --------------------------------
-const drawTile = (image, tile) => {
-  const { sx, sy } = tile.source;
-  const { dx, dy } = tile.coordinates;
-  const size = tile.size;
-  ctx.drawImage(image, sx, sy, size, size, dx, dy, size, size);
-};
 
-const detectCollision = (objects, newX, newY) => {
-  for (let i = 0; i < objects.length; i++) {
-    const obj = objects[i];
-    if (
-      newX < obj.coordinates.dx + obj.size &&
-      newX + player.size > obj.coordinates.dx &&
-      newY < obj.coordinates.dy + obj.size &&
-      newY + player.size > obj.coordinates.dy
-    ) {
-      return true;
+const initEquipmentItems = () => {
+  const equippedItems = player.data.details.equipped;
+  for (const piece in equippedItems) {
+    if (equippedItems[piece] !== 'empty') {
+      const item = equippedItems[piece];
+      initItem(item.id, item.type, item.name, item.source.sx, item.source.sy, item.coordinates.dx, item.coordinates.dy, item.scale);
     };
   };
-  return false;
 };
 
-const collisionDetect = (newX, newY) => {
-  return detectCollision(boundaries, newX, newY);
+const handlePlayerStatsEquipmentAndInventory = () => {
+  appendPlayerStatData();
+  initEquipmentItems();
 };
 
-const waterDetect = (newX, newY) => {
-  return detectCollision(wateries, newX, newY);
-};
 // --------------------------------
 const initItem = (id, type, name, sx, sy, dx, dy, scale = 1) => {
   const rpgItem = new Item(id, type, name, { source: { sx, sy }, coordinates: { dx, dy } }, scale);
@@ -246,7 +215,8 @@ const initItem = (id, type, name, sx, sy, dx, dy, scale = 1) => {
 
   // console.log(`${name} created.`, rpgItem);
 
-  if (isInEquipmentSection(rpgItem)) {
+  if (isInEquipmentSection(dx, dy)) {
+    rpgItem.scale = 0.5;
     equipped.push(rpgItem);
   // } else if (isInInventorySection(rpgItem)) {
   //   inventory.push(rpgItem);
@@ -257,41 +227,6 @@ const initItem = (id, type, name, sx, sy, dx, dy, scale = 1) => {
 
 const randomID = (input) => {
   return Math.random() * input;
-};
-
-const itemsToPlayWith = () => {
-  // item 1
-  initItem(randomID(items.length + 1), 'head', 'hood', 0, 0, 256, 256);
-  // item 2
-  initItem(randomID(items.length + 1), 'chest', 'tunic', 64, 0, 256, 320);
-  // item 3
-  initItem(randomID(items.length + 1), 'legs', 'pants', 128, 0, 256, 384);
-  // item 4
-  initItem(randomID(items.length + 1), 'neck', 'fanged', 448, 128, 192, 256);
-  // item 5
-  initItem(randomID(items.length + 1), 'mainhand', 'sword', 320, 64, 192, 320);
-  // item 6
-  initItem(randomID(items.length + 1), 'offhand', 'kite', 576, 64, 320, 320);
-  // item 7
-  initItem(randomID(items.length + 1), 'feet', 'shoes', 192, 0, 256, 448);
-  // item 8
-  initItem(randomID(items.length + 1), 'back', 'backpack', 0, 448, 320, 256);
-  // item 9
-  initItem(randomID(items.length + 1), 'head', 'coif', 0, 128, 512, 256);
-  // item 10
-  initItem(randomID(items.length + 1), 'chest', 'chainmail', 64, 128, 512, 320);
-  // item 11
-  initItem(randomID(items.length + 1), 'legs', 'chainmail kilt', 128, 128, 512, 384);
-  // item 12
-  initItem(randomID(items.length + 1), 'neck', 'silver', 512, 128, 448, 256);
-  // item 13
-  initItem(randomID(items.length + 1), 'mainhand', 'spear', 512, 64, 448, 320);
-  // item 14
-  initItem(randomID(items.length + 1), 'offhand', 'heater', 576, 128, 576, 320);
-  // item 15
-  initItem(randomID(items.length + 1), 'feet', 'chausses', 192, 128, 512, 448);
-  // item 16
-  initItem(randomID(items.length + 1), 'back', 'enchantedbackpack', 64, 448, 576, 384);
 };
 
 const updateWorldLocations = (valX, valY) => {
@@ -325,15 +260,6 @@ const isPointInsideRectangle = (pointX, pointY, rectangle) => {
 
 const isMouseOverButton = (mouseX, mouseY, button) => isPointInsideRectangle(mouseX, mouseY, button);
 
-const isInEquipmentSection = (item) => {
-  return isPointInsideRectangle(item.dx, item.dy, {
-    x: screen.width,
-    y: 0,
-    width: 192,
-    height: 192
-  });
-};
-
 const isInInventorySection = (item) => {
   const inventorySection = inventoryContainerSizes.inventorySection;
   return isPointInsideRectangle(item.dx, item.dy, inventorySection);
@@ -357,85 +283,76 @@ const findItemUnderMouse = (mouseX, mouseY, array) => {
   };
   return null;
 };
-// equip functions
-const handleEquipping = (item) => {
-  if (menuToggle === 'inventory') {
-    const equipSlot = player.data.details.equipped;
-    const slotLocations = equipLocations;
-
-    // Helper function to reset the previous equipped item
-    const resetPreviousItem = (type) => {
-      if (equipSlot[type] !== 'empty') {
-        const prev = equipped.find(gear => gear.id === equipSlot[type].id);
-        prev.dx = originalItemPosition.x;
-        prev.dy = originalItemPosition.y;
-        prev.scale = 1;
-        items.push(prev);
-        equipped.splice(equipped.indexOf(prev), 1);
-      }
-    };
-
-    const equipItem = (type) => {
-      resetPreviousItem(type);
-      equipSlot[type] = item;
-      item.dx = slotLocations[type].x;
-      item.dy = slotLocations[type].y;
-      item.scale = 0.5;
-      equipped.push(item);
-      items.splice(items.indexOf(item), 1);
-      drawEquipmentSection();
-      // if (type === 'back') drawInventorySection();
-    };
-
-    switch(item.type) {
-      case 'neck':
-      case 'head':
-      case 'back':
-      case 'chest':
-      case 'offhand':
-      case 'mainhand':
-      case 'legs':
-      case 'feet':
-        equipItem(item.type);
-        break;
-      default: break;
-    }
-  }
-};
-
-const resetEquipmentSlot = (item) => {
-  const equipSlot = player.data.details.equipped;
-  switch(item.type) {
-    case 'neck':
-    case 'head':
-    case 'back':
-    case 'chest':
-    case 'offhand':
-    case 'mainhand':
-    case 'legs':
-    case 'feet':
-      equipSlot[item.type] = 'empty';
-      break;
-    default: break;
-  };
-};
-
-// const btns = menu.toggles.menuSection;
   // mapbtn: { sx: 0, sy: 320, dx: screen.width + 16, dy: 208, size: 32 },
   // inventorybtn: { sx: 32, sy: 320, dx: screen.width + 80, dy: 208, size: 32 },
   // listbtn: { sx: 64, sy: 320, dx: screen.width + 142, dy: 208, size: 32 },
   // active: { sx: 96, sy: 320 }
 // inventory functions
 
-const isInsideScreenBounds = (item) => {
+const isInsideScreenBounds = (dx, dy) => {
   return (
-    item.coordinates.dx + item.size < screen.width &&
-    item.coordinates.dx > 0 &&
-    item.coordinates.dy + item.size < screen.height &&
-    item.coordinates.dy > 0
+    dx + 64 < screen.width &&
+    dx >= 0 &&
+    dy + 64 < screen.height &&
+    dy >= 0
   );
 };
-// draw functions -------------------------------------------------------- 
+
+const drawMenu = () => {
+  switch(menuToggle) {
+    case 'map':
+      // draw minimap
+      // draw button toggle
+      // draw minimap contents
+      // append text
+      break;
+    case 'inventory':
+      drawEquipmentSection();
+      // draw button toggle
+      // draw inventory
+      break;
+    case 'tracking':
+      // draw who is being tracked
+      // draw button toggle
+      // draw list
+      // draw stance
+      break;
+    default:
+      break;
+  };
+};
+
+// draw map functions -----------------------------------------------
+const drawTile = (image, tile) => {
+  const { sx, sy } = tile.source;
+  const { dx, dy } = tile.coordinates;
+  const size = tile.size;
+  ctx.drawImage(image, sx, sy, size, size, dx, dy, size, size);
+};
+
+const detectCollision = (objects, newX, newY) => {
+  for (let i = 0; i < objects.length; i++) {
+    const obj = objects[i];
+    if (
+      newX < obj.coordinates.dx + obj.size &&
+      newX + player.size > obj.coordinates.dx &&
+      newY < obj.coordinates.dy + obj.size &&
+      newY + player.size > obj.coordinates.dy
+    ) {
+      return true;
+    };
+  };
+  return false;
+};
+
+const collisionDetect = (newX, newY) => {
+  return detectCollision(boundaries, newX, newY);
+};
+
+const waterDetect = (newX, newY) => {
+  return detectCollision(wateries, newX, newY);
+};
+
 const drawOasis = (currentMap = resources.mapData.isLoaded && resources.mapData.genus01.layers) => {
   const upperTiles = [ 576, 577, 578, 579, 601, 602, 603, 604 ];
   const waterTiles = [ 1, 2, 3, 4, 5, 6, 7, 8 ];
@@ -511,27 +428,73 @@ const drawOasis = (currentMap = resources.mapData.isLoaded && resources.mapData.
   });
 };
 
-const drawMenu = () => {
-  switch(menuToggle) {
-    case 'map':
-      // draw minimap
-      // draw button toggle
-      // draw minimap contents
-      // append text
-      break;
-    case 'inventory':
+// handle equipping items ------------------------------------------------
+const isInEquipmentSection = (dx, dy) => {
+  return isPointInsideRectangle(dx, dy, {
+    x: screen.width,
+    y: 0,
+    width: 192,
+    height: 192
+  });
+};
+
+const handleEquipping = (item) => {
+  if (menuToggle === 'inventory') {
+    const playersEquippedItems = player.data.details.equipped;
+
+    const resetPreviousItem = (type) => {
+      if (playersEquippedItems[type] !== 'empty') {
+        const prev = equipped.find(gear => gear.id === playersEquippedItems[type].id);
+        prev.coordinates.dx = item.coordinates.dx;
+        prev.coordinates.dy = item.coordinates.dy;
+        prev.scale = 1;
+        items.push(prev);
+        equipped.splice(equipped.indexOf(prev), 1);
+      };
+    };
+
+    const equipItem = (type) => {
+      resetPreviousItem(type);
+      playersEquippedItems[type] = item;
+      item.coordinates.dx = equipLocations[type].x;
+      item.coordinates.dy = equipLocations[type].y;
+      item.scale = 0.5;
+      equipped.push(item);
+      items.splice(items.indexOf(item), 1);
       drawEquipmentSection();
-      // draw button toggle
-      // draw inventory
+      // if (type === 'back') drawInventorySection();
+    };
+
+    switch(item.type) {
+      case 'neck':
+      case 'head':
+      case 'back':
+      case 'chest':
+      case 'offhand':
+      case 'mainhand':
+      case 'legs':
+      case 'feet':
+        equipItem(item.type);
+        break;
+      default: break;
+    };
+  };
+};
+
+const resetEquipmentSlot = (item) => {
+  const equipSlot = player.data.details.equipped;
+  switch(item.type) {
+    case 'neck':
+    case 'head':
+    case 'back':
+    case 'chest':
+    case 'offhand':
+    case 'mainhand':
+    case 'legs':
+    case 'feet':
+      equipSlot[item.type] = 'empty';
       break;
-    case 'tracking':
-      // draw who is being tracked
-      // draw button toggle
-      // draw list
-      // draw stance
-      break;
-    default:
-      break;
+    default: break;
   };
 };
 
@@ -539,17 +502,27 @@ const drawEquipmentSection = () => {
   ctx.clearRect(screen.width, 0, 192, 192);
   ctx.drawImage(menu.image, 0, 0, 192, 192, screen.width, 0, 192, 192);
 
-  const equippedItems = player.data.details.equipped;
-  for (const piece in equippedItems) {
-    if (equippedItems[piece] !== 'empty') {
-      const item = equippedItems[piece];
-      initItem(item.id, item.type, item.name, item.source.sx, item.source.sy, item.coordinates.dx, item.coordinates.dy, item.scale);
-      item.draw(ctx);
-    };
+  equipped.forEach(item => item.draw(ctx));
+};
+
+// handle loading, form, and enter game ----------------------------------
+const handleLoading = () => {
+  const loadScreen = document.querySelector('.loading-container');
+  const progress = document.querySelector('.loading-progress');
+
+  const loadedAssets = [background, genus, menu].filter(asset => asset.loaded);
+  const percentage = (loadedAssets.length / 3) * 100;
+
+  progress.textContent = `entering oasis ... ${percentage.toFixed(2)}%`;
+  
+  if (loadedAssets.length === 3) {
+    loadScreen.style.display = 'none';
+    document.body.style.background = `url(${background.image.src}) center/cover no-repeat`;
+    form.classList.remove('hidden');
+    document.querySelector('#playername').focus();
   };
 };
 
-// handle form and enter game -----------------------------------------
 const handleFormAndEnterGame = async e => {
   e.preventDefault();
 
@@ -575,7 +548,7 @@ const handleFormAndEnterGame = async e => {
       canvas.style.background = '#464646';
       game.classList.remove('hidden');
       game.style.display = 'flex';
-      appendPlayerStatData();
+      handlePlayerStatsEquipmentAndInventory();
       drawOasis();
       drawMenu();
       // could add a character animation poofing into existence
@@ -583,19 +556,61 @@ const handleFormAndEnterGame = async e => {
   }, 500);
 };
 
-itemsToPlayWith(); // init items to play with
+// init items in game ----------------------------------------------------
+const initItemsInGame = () => {
+  // item 1
+  initItem(randomID(items.length + 1), 'head', 'hood', 0, 0, 256, 256);
+  // item 2
+  initItem(randomID(items.length + 1), 'chest', 'tunic', 64, 0, 256, 320);
+  // item 3
+  initItem(randomID(items.length + 1), 'legs', 'pants', 128, 0, 256, 384);
+  // item 4
+  initItem(randomID(items.length + 1), 'neck', 'fanged', 448, 128, 192, 256);
+  // item 5
+  initItem(randomID(items.length + 1), 'mainhand', 'sword', 320, 64, 192, 320);
+  // item 6
+  initItem(randomID(items.length + 1), 'offhand', 'kite', 576, 64, 320, 320);
+  // item 7
+  initItem(randomID(items.length + 1), 'feet', 'shoes', 192, 0, 256, 448);
+  // item 8
+  initItem(randomID(items.length + 1), 'back', 'backpack', 0, 448, 320, 256);
+  // item 9
+  initItem(randomID(items.length + 1), 'head', 'coif', 0, 128, 512, 256);
+  // item 10
+  initItem(randomID(items.length + 1), 'chest', 'chainmail', 64, 128, 512, 320);
+  // item 11
+  initItem(randomID(items.length + 1), 'legs', 'chainmail kilt', 128, 128, 512, 384);
+  // item 12
+  initItem(randomID(items.length + 1), 'neck', 'silver', 512, 128, 448, 256);
+  // item 13
+  initItem(randomID(items.length + 1), 'mainhand', 'spear', 512, 64, 448, 320);
+  // item 14
+  initItem(randomID(items.length + 1), 'offhand', 'heater', 576, 128, 576, 320);
+  // item 15
+  initItem(randomID(items.length + 1), 'feet', 'chausses', 192, 128, 512, 448);
+  // item 16
+  initItem(randomID(items.length + 1), 'back', 'enchantedbackpack', 64, 448, 576, 384);
+};
+
+initItemsInGame();
 
 // event listeners -------------------------------------------------------
+
 addEventListener('mousedown', e => {
   // move items around map and how they stack, collision and water behavior
   if (form.closed) {
     const mouseX = e.clientX - canvas.getBoundingClientRect().left;
     const mouseY = e.clientY - canvas.getBoundingClientRect().top;
     const selectedItem = findItemUnderMouse(mouseX, mouseY, items);      
-    // const equippedItem = findItemUnderMouse(mouseX, mouseY, equipped);
+    const equippedItem = findItemUnderMouse(mouseX, mouseY, equipped);
     
     if (selectedItem && inRangeOfPlayer(selectedItem.coordinates.dx, selectedItem.coordinates.dy)) {
       selectedItem.isDragging = true;
+      canvas.style.cursor = 'grabbing';
+    };
+
+    if (equippedItem) {
+      equippedItem.isDragging = true;
       canvas.style.cursor = 'grabbing';
     };
   };
@@ -617,7 +632,7 @@ addEventListener('mousemove', e => {
       canvas.style.cursor = 'grab';
     };
 
-    if (selectedItem.isDragging) {
+    if (selectedItem && selectedItem.isDragging) {
       items.splice(items.indexOf(selectedItem), 1);
       items.push(selectedItem);      
     };
@@ -626,27 +641,31 @@ addEventListener('mousemove', e => {
 
 addEventListener('mouseup', e => {
   const handleDragging = (item) => {
-    let posX = e.clientX - canvas.getBoundingClientRect().left;
-    let posY = e.clientY - canvas.getBoundingClientRect().top;
-    let dx = Math.floor(posX / 64) * 64;
-    let dy = Math.floor(posY / 64) * 64;
-    if (isInsideScreenBounds(item)) {
+    const posX = e.clientX - canvas.getBoundingClientRect().left;
+    const posY = e.clientY - canvas.getBoundingClientRect().top;
+    const dx = Math.floor(posX / 64) * 64;
+    const dy = Math.floor(posY / 64) * 64;
+    const previousCoordinates = { dx: item.coordinates.dx, dy: item.coordinates.dy };
+    if (!isInsideScreenBounds(dx, dy) && !isInEquipmentSection(dx, dy)) {
+      item.isDragging = false;
+      canvas.style.cursor = 'crosshair';
+    } else if(isInsideScreenBounds(dx, dy)) {
       if (!collisionDetect(dx, dy) && !waterDetect(dx, dy)) {
         item.coordinates = { dx, dy };
         item.isDragging = false;
         canvas.style.cursor = 'grab';
-      };
-
-      if (collisionDetect(dx, dy)) {
+      } else if (collisionDetect(dx, dy)) {
         item.isDragging = false;
         canvas.style.cursor = 'crosshair';
-      };
-      
-      if (waterDetect(dx, dy)) {
+      } else if (waterDetect(dx, dy)) {
         items.splice(items.indexOf(item), 1);
         canvas.style.cursor = 'crosshair';
       };
-
+      drawOasis();
+    } else if (isInEquipmentSection(dx, dy)) {
+      // item.coordinates = { dx, dy };
+      handleEquipping(item);
+      canvas.style.cursor = 'grab';
       drawOasis();
     };
   };
