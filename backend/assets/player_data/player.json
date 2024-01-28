@@ -49,33 +49,19 @@
               "dy": 16
             },
             "size": 64,
-            "id": 7.7140262488759666,
+            "id": 7.812848033372682,
             "type": "neck",
             "name": "silver",
             "scale": 0.5,
-            "isDragging": false
+            "isDragging": false,
+            "offense": 1,
+            "defense": 1
           },
-          "head": {
-            "image": {},
-            "source": {
-              "sx": 0,
-              "sy": 128
-            },
-            "coordinates": {
-              "dx": 912,
-              "dy": 16
-            },
-            "size": 64,
-            "id": 0.7461486974594047,
-            "type": "head",
-            "name": "coif",
-            "scale": 0.5,
-            "isDragging": false
-          },
+          "head": "empty",
           "back": {
             "image": {},
             "source": {
-              "sx": 64,
+              "sx": 0,
               "sy": 448
             },
             "coordinates": {
@@ -83,97 +69,19 @@
               "dy": 16
             },
             "size": 64,
-            "id": 2.6106422967485763,
+            "id": 7.607187589223043,
             "type": "back",
-            "name": "enchantedbackpack",
+            "name": "backpack",
             "scale": 0.5,
-            "isDragging": false
+            "isDragging": false,
+            "slots": 18,
+            "capacity": 0.5
           },
-          "mainhand": {
-            "image": {},
-            "source": {
-              "sx": 320,
-              "sy": 64
-            },
-            "coordinates": {
-              "dx": 848,
-              "dy": 144
-            },
-            "size": 64,
-            "id": 1.0472380748066723,
-            "type": "mainhand",
-            "name": "sword",
-            "scale": 0.5,
-            "isDragging": false
-          },
-          "offhand": {
-            "image": {},
-            "source": {
-              "sx": 576,
-              "sy": 128
-            },
-            "coordinates": {
-              "dx": 976,
-              "dy": 80
-            },
-            "size": 64,
-            "id": 13.397849202937127,
-            "type": "offhand",
-            "name": "heater",
-            "scale": 0.5,
-            "isDragging": false
-          },
-          "chest": {
-            "image": {},
-            "source": {
-              "sx": 64,
-              "sy": 128
-            },
-            "coordinates": {
-              "dx": 848,
-              "dy": 80
-            },
-            "size": 64,
-            "id": 6.187175554223055,
-            "type": "chest",
-            "name": "chainmail",
-            "scale": 0.5,
-            "isDragging": false
-          },
-          "legs": {
-            "image": {},
-            "source": {
-              "sx": 128,
-              "sy": 128
-            },
-            "coordinates": {
-              "dx": 912,
-              "dy": 144
-            },
-            "size": 64,
-            "id": 0.5076594977132283,
-            "type": "legs",
-            "name": "chainmail kilt",
-            "scale": 0.5,
-            "isDragging": false
-          },
-          "feet": {
-            "image": {},
-            "source": {
-              "sx": 192,
-              "sy": 128
-            },
-            "coordinates": {
-              "dx": 976,
-              "dy": 144
-            },
-            "size": 64,
-            "id": 9.013640930513265,
-            "type": "feet",
-            "name": "chausses",
-            "scale": 0.5,
-            "isDragging": false
-          }
+          "mainhand": "empty",
+          "offhand": "empty",
+          "chest": "empty",
+          "legs": "empty",
+          "feet": "empty"
         },
         "inventory": [],
         "stance": "defensive"
@@ -217,7 +125,25 @@
     "equipped": {
       "neck": "empty",
       "head": "empty",
-      "back": "empty",
+      "back": {
+        "image": {},
+        "source": {
+          "sx": 64,
+          "sy": 448
+        },
+        "coordinates": {
+          "dx": 976,
+          "dy": 16
+        },
+        "size": 64,
+        "id": 7.880512440733444,
+        "type": "back",
+        "name": "enchantedbackpack",
+        "scale": 0.5,
+        "isDragging": false,
+        "slots": 36,
+        "capacity": 0.5
+      },
       "mainhand": "empty",
       "offhand": "empty",
       "chest": "empty",
