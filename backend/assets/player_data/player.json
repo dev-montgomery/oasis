@@ -49,7 +49,7 @@
               "dy": 16
             },
             "size": 64,
-            "id": 7.812848033372682,
+            "id": 10.86550297866204,
             "type": "neck",
             "name": "silver",
             "scale": 0.5,
@@ -61,7 +61,7 @@
           "back": {
             "image": {},
             "source": {
-              "sx": 0,
+              "sx": 64,
               "sy": 448
             },
             "coordinates": {
@@ -69,12 +69,13 @@
               "dy": 16
             },
             "size": 64,
-            "id": 7.607187589223043,
+            "id": 5.913523226505493,
             "type": "back",
-            "name": "backpack",
+            "name": "enchantedbackpack",
             "scale": 0.5,
             "isDragging": false,
-            "slots": 18,
+            "contents": [],
+            "spaces": 36,
             "capacity": 0.5
           },
           "mainhand": "empty",
@@ -83,7 +84,7 @@
           "legs": "empty",
           "feet": "empty"
         },
-        "inventory": [],
+        "depot": [],
         "stance": "defensive"
       }
     }
@@ -123,7 +124,25 @@
       "fishingxp": 0
     },
     "equipped": {
-      "neck": "empty",
+      "neck": {
+        "image": {},
+        "source": {
+          "sx": 512,
+          "sy": 128
+        },
+        "coordinates": {
+          "dx": 848,
+          "dy": 16
+        },
+        "size": 64,
+        "id": 3.362828821428894,
+        "type": "neck",
+        "name": "silver",
+        "scale": 0.5,
+        "isDragging": false,
+        "offense": 1,
+        "defense": 1
+      },
       "head": "empty",
       "back": {
         "image": {},
@@ -136,12 +155,13 @@
           "dy": 16
         },
         "size": 64,
-        "id": 7.880512440733444,
+        "id": 7.964817238823343,
         "type": "back",
         "name": "enchantedbackpack",
         "scale": 0.5,
         "isDragging": false,
-        "slots": 36,
+        "contents": [],
+        "spaces": 36,
         "capacity": 0.5
       },
       "mainhand": "empty",
@@ -150,7 +170,7 @@
       "legs": "empty",
       "feet": "empty"
     },
-    "inventory": [],
+    "depot": [],
     "stance": "defensive"
   },
   "lvlupdata": {

@@ -47,19 +47,19 @@ const stancesButtonPositions = {
   passiveInactive: { sx: 160, sy: 352, dx: screen.width + 128, dy: 640, size: 32, scale: 2 },
   passiveActive: { sx: 160, sy: 384, dx: screen.width + 128, dy: 640, size: 32, scale: 2 },
 };
-const mapSectionScrollButtonPositions = {
-  inactiveDown : { sx: 0, sy: 320, dx: screen.width + 160, dy: 288, size: 32 },
-  inactiveUp: { sx: 32, sy: 320, dx: screen.width + 160, dy: 256, size: 32 },
-  activeDown: { sx: 0, sy: 352, dx: screen.width + 160, dy: 288, size: 32 },
-  activeUp: { sx: 32, sy: 352, dx: screen.width + 160, dy: 256, size: 32 },
+const arrowPositions = {
+  inactiveDown : { sx: 64, sy: 288, size: 32 },
+  inactiveUp: { sx: 96, sy: 288, size: 32 },
+  activeDown: { sx: 0, sy: 288, size: 32 },
+  activeUp: { sx: 32, sy: 288, size: 32 },
 };
 const containerPositions = {
-  backpack: { x: 0, y: 256, width: 32, height: 32 },
-  labeledbackpack: { x: 32, y: 256, width: 32, height: 32 },
-  enchantedbackpack: { x: 64, y: 256, width: 32, height: 32 },
-  labeledenchantedbackpack: { x: 96, y: 256, width: 32, height: 32 },
-  depot: { x: 128, y: 256, width: 32, height: 32 },
-  parcel: { x: 160, y: 256, width: 32, height: 32 }
+  backpack: { sx: 0, sy: 256, width: 32, height: 32 },
+  labeledbackpack: { sx: 32, sy: 256, width: 32, height: 32 },
+  enchantedbackpack: { sx: 64, sy: 256, width: 32, height: 32 },
+  labeledenchantedbackpack: { sx: 96, sy: 256, width: 32, height: 32 },
+  depot: { sx: 128, sy: 256, width: 32, height: 32 },
+  parcel: { sx: 160, sy: 256, width: 32, height: 32 }
 };
 const rangeOfPlayer = {
   x: screen.width / 2 - 96, 
@@ -72,13 +72,13 @@ const menubtns = [
   menuButtonPositions.inventorybtn, 
   menuButtonPositions.trackingbtn
 ];
+const inventory = { primary: { open: true, expanded: true }, secondary: { open: false } };
 
 let boundaries = [];
 let wateries = [];
 let uppermost = [];
 
 let equipped = [];
-let inventory = [];
 let backpack = [];
 let depot = [];
 let items = [];
@@ -106,7 +106,7 @@ const menu = {
   image: new Image(),
   src: './backend/assets/menu.png',
   containers: containerPositions,
-  toggles: { menuSection: menuButtonPositions, stanceSection: stancesButtonPositions, mapContentsSection: mapSectionScrollButtonPositions },
+  toggles: { menuSection: menuButtonPositions, stanceSection: stancesButtonPositions, mapContentsSection: arrowPositions },
   loaded: false
 };
 
@@ -445,51 +445,88 @@ const drawEquipmentSection = () => {
 
 // handle inventory ------------------------------------------------
 const isInInventorySection = (item) => {
-
+  if (inventory.primary.open){
+    if (inventory.primary.expanded) {
+      return isPointInsideRectangle(item.coordinates.dx, item.coordinates.dy, {
+        x: screen.width,
+        y: 292,
+        width: 192,
+        height: 412
+      });
+    } else {
+      return isPointInsideRectangle(item.coordinates.dx, item.coordinates.dy, {
+        x: screen.width,
+        y: 292,
+        width: 192,
+        height: 188
+      });
+    };
+  };
 };
 
-const handleInventory = (item) => {
-  // if (isInInventorySection(item.coordinates.dx, item.coordinates.dy)) {
-
-  // };
+const handleInventory = (container, item) => {
+  if (container.contents) {
+    container.contents.push(item);
+    // is the item in the world... or is it in a different container?
+  };
 };
 
-const drawInventorySection = (backpack = player.data.details.equipped.back) => {
+const drawPrimaryInventorySpacesAndItems = (storage, expanded, itemIndex) => {
+  const gapBetweenStorageSpaces = 6;
+  const rowLength = 5
+  const unusedSpacesToFillOutRow = rowLength - (storage.spaces % rowLength);
+  const numberOfSpacesToDraw = expanded ? storage.spaces + unusedSpacesToFillOutRow : 20; 
+
+  for (let i = 0; i < numberOfSpacesToDraw; i++) {
+    const x = i % rowLength * 36;
+    const y = Math.floor(i / rowLength) * 36;
+
+    if (i < storage.spaces) ctx.fillStyle = '#E1E1E1';
+    if (i >= storage.spaces) ctx.fillStyle = '#404040';
+
+    const spaceX = screen.width + gapBetweenStorageSpaces + x;
+    const spaceY = 292 + gapBetweenStorageSpaces + y;
+    ctx.fillRect(spaceX, spaceY, 34, 34);
+    
+    if (storage.contents[i + itemIndex]) {
+      const item = storage.contents[i + itemIndex];
+      item.dx = spaceX;
+      item.dy = spaceY;
+      item.scale = 0.5;
+      item.draw(ctx);
+    };
+  };
+};
+
+let stashExpanded = false;
+
+const drawInventorySection = () => {  
   ctx.clearRect(screen.width, 256, 192, 448);
   ctx.fillStyle = '#2e2e2e';
   ctx.fillRect(screen.width, 256, 192, 448);
 
-  if (backpack !== 'empty') {
-    ctx.drawImage(
-      menu.image, 
-      containerPositions[backpack.name].x, 
-      containerPositions[backpack.name].y, 
-      containerPositions[backpack.name].width, 
-      containerPositions[backpack.name].height, 
-      screen.width + 6, 
-      260, 
-      containerPositions[backpack.name].width, 
-      containerPositions[backpack.name].height
-    );
-    
-    const gap = 6
-    
-    for (let i = 0; i < backpack.slots; i++) {
-      const x = i % 5 * 36;
-      const y = Math.floor(i / 5) * 36;
-  
-      ctx.fillStyle = '#E1E1E1';
-      ctx.fillRect(screen.width + gap + x, 296 + gap + y, 34, 34);
+  const backpack = player.data.details.equipped.back;
+  if (backpack !== "empty") {
+    ctx.drawImage(menu.image, containerPositions[backpack.name].sx, containerPositions[backpack.name].sy, containerPositions[backpack.name].width, containerPositions[backpack.name].height, screen.width + 4, 260, containerPositions[backpack.name].width, containerPositions[backpack.name].height);
+
+    if (!inventory.secondary.open) {
+      drawPrimaryInventorySpacesAndItems(backpack, true, 0);
+    } else {  
+      if (backpack.contents.length < 21) {
+        drawPrimaryInventorySpacesAndItems(backpack, false, 0);
       
-      // if (inventory[i]) {
-      //   const item = inventory[i];
-      //   item.dx = screen.width + x;
-      //   item.dy = 288 + y;
-      //   item.scale = 0.5;
-      //   item.draw(ctx);
-      // };
+      } else if (!stashExpanded && backpack.contents.length > 20) {
+        ctx.drawImage(menu.image, arrowPositions.activeDown.sx, arrowPositions.activeDown.sy, arrowPositions.activeDown.size, arrowPositions.activeDown.size, screen.width + 156, 260, arrowPositions.activeDown.size, arrowPositions.activeDown.size);
+        drawPrimaryInventorySpacesAndItems(backpack, false, 0);
+      
+      } else if (stashExpanded && backpack.contents.length > 20) {
+        ctx.drawImage(menu.image, arrowPositions.activeUp.sx, arrowPositions.activeUp.sy, arrowPositions.activeUp.size, arrowPositions.activeUp.size, screen.width + 156, 260, arrowPositions.activeUp.size, arrowPositions.activeUp.size);
+        drawPrimaryInventorySpacesAndItems(backpack, false, 21);
+      };
+  
+      // open backpack inside backpack
     };
-  };
+  }
 };
 
 // handle tracking --------------------------------------------------
@@ -699,9 +736,6 @@ addEventListener('mousedown', e => {
       };
     });
   };
-
-  // move item into equipment section
-  // handle equipping and unequipping
 });
 
 addEventListener('mousemove', e => {
@@ -775,6 +809,7 @@ addEventListener('mouseup', e => {
 
     drawOasis();
     drawEquipmentSection();
+    drawInventorySection();
   };
 
   if (form.closed) {

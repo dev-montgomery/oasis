@@ -1,27 +1,32 @@
 { 
   "container":{
     "depot":{
-      "slots":36,
+      "contents":[],
+      "spaces":36,
       "capacity":"n/a"
     }
   },
   "back":{
     "backpack":{
-      "slots":18,
+      "contents":[],
+      "spaces":18,
       "capacity":0.5
     },
     "labledbackpack":{
       "name": null,
-      "slots":18,
+      "contents":[],
+      "spaces":18,
       "capacity":0.5
     },
     "enchantedbackpack":{
-      "slots":36,
+      "contents":[],
+      "spaces":36,
       "capacity":0.5
     },
     "labeledenchantedbackpack":{
       "name": null,
-      "slots":36,
+      "contents":[],
+      "spaces":36,
       "capacity":0.5
     }
   },
@@ -165,7 +170,9 @@
 
     },
     "parcel":{
-
+      "contents":[],
+      "spaces":6,
+      "capacity":1
     },
     "torch":{
 
