@@ -49,7 +49,7 @@
               "dy": 16
             },
             "size": 64,
-            "id": 10.86550297866204,
+            "id": 1.4054482749072248,
             "type": "neck",
             "name": "silver",
             "scale": 0.5,
@@ -74,7 +74,29 @@
             "name": "enchantedbackpack",
             "scale": 0.5,
             "isDragging": false,
-            "contents": [],
+            "contents": [
+              {
+                "image": {},
+                "source": {
+                  "sx": 512,
+                  "sy": 128
+                },
+                "coordinates": {
+                  "dx": 848,
+                  "dy": 16
+                },
+                "size": 64,
+                "id": 1.4054482749072248,
+                "type": "neck",
+                "name": "silver",
+                "scale": 0.5,
+                "isDragging": false,
+                "offense": 1,
+                "defense": 1,
+                "dx": 838,
+                "dy": 298
+              }
+            ],
             "spaces": 36,
             "capacity": 0.5
           },
