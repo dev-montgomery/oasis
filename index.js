@@ -40,6 +40,11 @@ const menuButtonPositions = {
   trackingbtn: { name: 'tracking', sx: 64, sy: 320, dx: screen.width + 142, dy: 208, width: 32, height: 32 },
   active: { sx: 96, sy: 320, width: 36, height: 36 }
 };
+const menubtns = [
+  menuButtonPositions.mapbtn, 
+  menuButtonPositions.inventorybtn, 
+  menuButtonPositions.trackingbtn
+];
 const stancesButtonPositions = {
   attackInactive: { sx: 96, sy: 352, dx: screen.width, dy: 640, size: 32, scale: 2 },
   attackActive: { sx: 96, sy: 384, dx: screen.width, dy: 640, size: 32, scale: 2 },
@@ -68,26 +73,21 @@ const rangeOfPlayer = {
   width: 192, 
   height: 192
 }; 
-const menubtns = [
-  menuButtonPositions.mapbtn, 
-  menuButtonPositions.inventorybtn, 
-  menuButtonPositions.trackingbtn
-];
-const inventory = { primary: { open: true, expanded: true, startY: 292 }, secondary: { open: false, startY: 516 } };
-
-const KEY_W = 'w';
-const KEY_S = 's';
-const KEY_A = 'a';
-const KEY_D = 'd';
+const inventorySections = { 
+  primary: { open: true, expanded: true, startY: 292 }, 
+  secondary: { open: false, startY: 516 } 
+};
 
 let boundaries = [];
 let wateries = [];
 let uppermost = [];
 
-let equipped = [];
-let backpackItems = [];
-let depot = [];
+let backpack = null;
+
 let items = [];
+let equipped = [];
+let inventory = [];
+let depot = [];
 
 let menuToggle = 'inventory';
 let isShiftKeyPressed = false;
@@ -209,19 +209,21 @@ const appendPlayerStatData = () => {
 
 const handlePlayerStatsEquipmentAndInventory = () => {
   const initEquipmentItems = () => {
-    const backpack = player.data.details.equipped.back;
     const equippedItems = player.data.details.equipped;
+    backpack = equippedItems.back;
+
     for (const piece in equippedItems) {
       if (equippedItems[piece] !== 'empty') {
         const item = equippedItems[piece];
         initItem(item.id, item.type, item.name, item.source.sx, item.source.sy, item.coordinates.dx, item.coordinates.dy, item.scale);
       };
     };
-
-    backpack.contents.forEach(item => {
-      console.log(item)
-      initItem(item.id, item.type, item.name, item.source.sx, item.source.sy, item.coordinates.dx, item.coordinates.dy, item.scale);
-    });
+    
+    if (backpack !== "empty") {
+      backpack.contents.forEach(item => {
+        initItem(item.id, item.type, item.name, item.source.sx, item.source.sy, item.coordinates.dx, item.coordinates.dy, item.scale);
+      });
+    };
   };
 
   appendPlayerStatData();
@@ -235,12 +237,20 @@ const initItem = (id, type, name, sx, sy, dx, dy, scale = 1) => {
   const category = resources.itemData[type];
   Object.assign(rpgItem, category[name]);
   
-  const backpack = player.data.details.equipped.back;
+  backpack = player.data.details.equipped.back ?? null;
   
   if (isInEquipmentSection(dx, dy)) {
     rpgItem.scale = 0.5;
     equipped.push(rpgItem);
-  } else if (backpack.contents.indexOf(rpgItem) === -1){
+  };
+  
+  if (backpack.hasOwnProperty('contents')) {
+    if (backpack.contents.find(item => item.id === rpgItem.id)){
+      inventory.push(rpgItem);
+    };
+  }; 
+  
+  if (isInsideScreenBounds(rpgItem.coordinates.dx, rpgItem.coordinates.dy)) {
     items.push(rpgItem);
   };
 };
@@ -261,7 +271,7 @@ const updateWorldLocations = (valX, valY) => {
 };
 
 // checking areas -------------------------------------------------
-const inRangeOfPlayer = (pointX, pointY) => {    
+const isInRangeOfPlayer = (pointX, pointY) => {    
   return (
     pointX >= rangeOfPlayer.x &&
     pointX < rangeOfPlayer.x + rangeOfPlayer.width &&
@@ -380,7 +390,6 @@ const drawMenu = (section = 'inventory') => {
   };
 };
 
-// handle map -------------------------------------------------------
 // handle equipping items -------------------------------------------
 const isInEquipmentSection = (dx, dy) => {
   return isPointInsideRectangle(dx, dy, {
@@ -460,8 +469,8 @@ const drawEquipmentSection = () => {
 
 // handle inventory ------------------------------------------------
 const isInInventorySection = (item) => {
-  if (inventory.primary.open){
-    if (inventory.primary.expanded) {
+  if (inventorySections.primary.open){
+    if (inventorySections.primary.expanded) {
       return isPointInsideRectangle(item.coordinates.dx, item.coordinates.dy, {
         x: screen.width,
         y: 292,
@@ -493,6 +502,7 @@ const isInSecondaryInventorySection = (item) => {
 const handleInventory = (container, item) => {
   if (container.contents) {
     container.contents.push(item);
+    inventory.push(item);
     // is the item in the world... or is it in a different container?
   };
 };
@@ -514,16 +524,14 @@ const drawInventorySectionsSpacesAndItems = (storage, expanded, startY, itemInde
     const spaceY = startY + gapBetweenStorageSpaces + y;
     ctx.fillRect(spaceX, spaceY, 34, 34);
     
-    if (storage.contents[i + itemIndex]) {
-      const item = storage.contents[i + itemIndex];
-      item.dx = spaceX;
-      item.dy = spaceY;
+    if (inventory[i + itemIndex]) {
+      const item = inventory[i + itemIndex];
+      item.coordinates.dx = spaceX;
+      item.coordinates.dy = spaceY + 1;
       item.scale = 0.5;
-      backpackItems.push(item)
+      item.draw(ctx);
     };
   };
-
-  backpackItems.forEach(item => item.draw(ctx));
 };
 
 let inventoryExpanded = false;
@@ -536,11 +544,11 @@ const drawInventorySection = () => {
   ctx.fillStyle = '#2e2e2e';
   ctx.fillRect(screen.width, 256, 192, 448);
 
-  const backpack = player.data.details.equipped.back;
-  if (backpack !== "empty") {
+  backpack = player.data.details.equipped.back;
+  if (backpack && backpack !== "empty") {
     ctx.drawImage(menu.image, containerPositions[backpack.name].sx, containerPositions[backpack.name].sy, containerPositions[backpack.name].width, containerPositions[backpack.name].height, screen.width + 4, 260, containerPositions[backpack.name].width, containerPositions[backpack.name].height);
 
-    if (!inventory.secondary.open) {
+    if (!inventorySections.secondary.open) {
       drawInventorySectionsSpacesAndItems(backpack, true, 292, 0);
     // } else {  
     //   if (backpack.contents.length < 21) {
@@ -747,13 +755,12 @@ const handleMouseDown = e => {
     const selectedItem = findItemUnderMouse(mouseX, mouseY, items);      
     const equippedItem = findItemUnderMouse(mouseX, mouseY, equipped);
 
-    if (e.shiftKey) {
+    if (e.shiftKey && isInRangeOfPlayer(selectedItem.coordinates.dx, selectedItem.coordinates.dy)) {
       isShiftKeyPressed = true;
       selectedItem.shifted = true;
-      console.log(isShiftKeyPressed, selectedItem)
     };
     
-    if (selectedItem && inRangeOfPlayer(selectedItem.coordinates.dx, selectedItem.coordinates.dy)) {
+    if (selectedItem && isInRangeOfPlayer(selectedItem.coordinates.dx, selectedItem.coordinates.dy)) {
       selectedItem.isDragging = true;
       canvas.style.cursor = 'grabbing';
     };
@@ -801,6 +808,20 @@ const handleMouseMove = e => {
 };
 
 const handleMouseUp = e => {
+  const handleShiftMouseUp = (container, item) => {
+    item.coordinates.dx = screen.width + (inventory.length % 5) * 36;
+    item.coordinates.dy = Math.floor(inventory.length / 5) * 36;
+    delete item.shifted;
+    canvas.style.cursor = 'crosshair';
+
+    handleInventory(container, item);
+    items.splice(items.indexOf(item), 1);
+
+    drawOasis();
+    drawEquipmentSection();
+    drawInventorySection();
+  };
+
   const handleDragging = (item) => {
     const posX = e.clientX - canvas.getBoundingClientRect().left;
     const posY = e.clientY - canvas.getBoundingClientRect().top;
@@ -847,19 +868,12 @@ const handleMouseUp = e => {
   };
 
   if (form.closed) {
-    const backpack = player.data.details.equipped.back;
-    
+    backpack = player.data.details.equipped.back;
     items.concat(equipped).forEach(item => {
       if (item.shifted && backpack !== "empty") {
-        console.log(item)
-        delete item.shifted;
-        console.log(item)
-        backpack.contents.push(item);
-        items.splice(items.indexOf(item), 1);
-        drawOasis();
-        drawEquipmentSection();
-        drawInventorySection();
-      } else if (item.isDragging) {
+        handleShiftMouseUp(backpack, item);    
+      } else 
+      if (item.isDragging) {
         handleDragging(item);
       };
       isShiftKeyPressed = false;
@@ -871,6 +885,11 @@ const handleKeyDown = e => {
   if (!form.closed || chatbox || player.cooldown) {
     return;
   };
+
+  const KEY_W = 'w';
+  const KEY_S = 's';
+  const KEY_A = 'a';
+  const KEY_D = 'd';
 
   let dx = player.coordinates.dx + player.offset;
   let dy = player.coordinates.dy + player.offset;
