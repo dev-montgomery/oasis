@@ -6,7 +6,7 @@
       "details": {
         "location": {
           "x": 93,
-          "y": 140
+          "y": 142
         },
         "lvls": {
           "lvl": 0,
@@ -41,7 +41,7 @@
           "neck": {
             "image": {},
             "source": {
-              "sx": 512,
+              "sx": 448,
               "sy": 128
             },
             "coordinates": {
@@ -49,19 +49,19 @@
               "dy": 16
             },
             "size": 64,
-            "id": 3.4745412323079536,
+            "id": 2.350309539089853,
             "type": "neck",
-            "name": "silver",
+            "name": "fanged",
             "scale": 0.5,
             "isDragging": false,
             "offense": 1,
-            "defense": 1
+            "defense": "n/a"
           },
           "head": "empty",
           "back": {
             "image": {},
             "source": {
-              "sx": 0,
+              "sx": 64,
               "sy": 448
             },
             "coordinates": {
@@ -69,13 +69,13 @@
               "dy": 16
             },
             "size": 64,
-            "id": 2.8552990429333587,
+            "id": 0.5840591264633552,
             "type": "back",
-            "name": "backpack",
+            "name": "enchantedbackpack",
             "scale": 0.5,
             "isDragging": false,
             "contents": [],
-            "spaces": 18,
+            "spaces": 36,
             "capacity": 0.5
           },
           "mainhand": "empty",
