@@ -43,6 +43,7 @@ let currentMenu = 'inventory';
 let items = [];
 let equipped = [];
 let inventory = [];
+let depot = [];
 
 let boundaries = [];
 let wateries = [];
@@ -248,7 +249,7 @@ const findItemUnderMouse = (mouseX, mouseY, array) => {
   return null;
 };
 
-// draw map functions -----------------------------------------------
+// draw map functions --------------------------------------------
 const drawTile = (image, tile) => {
   const { sx, sy } = tile.source;
   const { dx, dy } = tile.coordinates;
@@ -350,7 +351,7 @@ const drawOasis = (currentMap = resources.mapData.isLoaded && resources.mapData.
   });
 };
 
-// handle menu ------------------------------------------------------
+// handle menu ---------------------------------------------------
 const drawToggleSection = (section) => {
   const menuSection = menu.menuSection;
 
@@ -409,7 +410,7 @@ const drawMenu = (section = 'inventory') => {
     case 'inventory':
       drawEquipmentSection();
       drawToggleSection(section);
-      // drawInventorySection();
+      drawInventorySection();
       break;
     case 'tracking':
       // draw who is being tracked
@@ -422,7 +423,7 @@ const drawMenu = (section = 'inventory') => {
   };
 };
 
-// // handle equipping items -------------------------------------------
+// handle equipping items ----------------------------------------
 const handleEquipping = (item) => {
   if (currentMenu === 'inventory') {
     const playersEquippedItems = player.data.details.equipped;
@@ -430,32 +431,46 @@ const handleEquipping = (item) => {
     const resetPreviousItem = (type) => {
       if (playersEquippedItems[type] !== 'empty') {
         const prev = equipped.find(gear => gear.id === playersEquippedItems[type].id);
+        
+        if (prev.type === 'back') {
+          prev.state = 'closed';
+        };
+        
         prev.coordinates.dx = item.coordinates.dx;
         prev.coordinates.dy = item.coordinates.dy;
         prev.scale = 1;
+        
         if (itemIsInScreenBounds(prev.coordinates.dx, prev.coordinates.dy)) {
           items.push(prev);
-        // } else if (itemIsInInventorySection(prev.coordinates.dx, prev.coordinates.dy)) {
-        //   inventory.push(prev);
+          equipped.splice(equipped.indexOf(prev), 1);
+        } else if (itemIsInInventorySection(prev.coordinates.dx, prev.coordinates.dy)) {
+          inventory.push(prev);
+          equipped.splice(equipped.indexOf(prev), 1);
         };
-        equipped.splice(equipped.indexOf(prev), 1);
       };
     };
 
     const equipItem = (type) => {
       resetPreviousItem(type);
-      playersEquippedItems[type] = item;
+      
       item.coordinates.dx = equipLocations[type].x;
       item.coordinates.dy = equipLocations[type].y;
       item.scale = 0.5;
       item.isDragging = false;
+      
+      if (type === 'back') {
+        item.state = 'open';
+        handleInventory(item);
+      };
+
+      playersEquippedItems[type] = item;
       equipped.push(item);
+
       if (items.includes(item)) {
         items.splice(items.indexOf(item), 1);
       } else if (inventory.includes(item)) {
         inventory.splice(inventory.indexOf(item), 1);
       };
-      // if (type === 'back') drawInventorySection();
     };
 
     switch(item.type) {
@@ -495,6 +510,9 @@ const drawEquipmentSection = () => {
 
   equipped.forEach(item => item.draw(ctx));
 };
+
+// handle inventory items ----------------------------------------
+
 
 // handle loading assets/transition to login
 const handleLoading = () => {
@@ -785,6 +803,47 @@ const handleMouseUp = e => {
   };
 };
 
+// contextmenu event listener
+const handleInventory = (item) => {
+  if (item.state === 'open') {
+    // check if first section is free
+    // then draw inventory in first section
+    // set first section to item
+
+    // else check if second section is free
+    // then draw inventory in second section
+    // set section to item
+
+    // else if both sections are used
+    // check if item is in first section item.id
+    // and if it is, open in first section with back button
+    
+    // else check if item is in second section item.id
+    // and if it is, open in second section with back button
+  };
+};
+
+const drawInventorySection = () => {
+  ctx.clearRect(screen.width, 256, 192, 448);
+  ctx.fillStyle = '#2e2e2e';
+  ctx.fillRect(screen.width, 256, 192, 448);  
+};
+
+const handleRightClick = e => {
+  if (game.on) {
+    const mouseX = e.clientX - canvas.getBoundingClientRect().left;
+    const mouseY = e.clientY - canvas.getBoundingClientRect().top;
+    const useItem = findItemUnderMouse(mouseX, mouseY, [...items, ...equipped, ...inventory, ...depot]);
+    if (useItem.type === 'back' && useItem.state === 'closed') {
+      useItem.state = 'open';
+      handleInventory(useItem);
+    } else if (useItem === 'back' && useItem.state === 'open') {
+      useItem.state = 'closed';
+      handleInventory();
+    };
+  };
+};
+
 // handle player movement/update item locations 
 const updateWorldLocations = (valX, valY) => {
   player.data.details.location.x += valX;
@@ -886,80 +945,7 @@ const updateAndPostPlayerData = async () => {
   await postPlayerData(resources.playerData);
 };
 
-// const handleMouseUp = e => {
-//   const handleShiftMouseUp = (container, item) => {
-//     item.coordinates.dx = screen.width + (inventory.length % 5) * 36;
-//     item.coordinates.dy = Math.floor(inventory.length / 5) * 36;
-//     delete item.shifted;
-//     canvas.style.cursor = 'crosshair';
-
-//     handleInventory(container, item);
-//     items.splice(items.indexOf(item), 1);
-
-//     drawOasis();
-//     drawEquipmentSection();
-//     drawInventorySection();
-//   };
-
-//   const handleDragging = (item) => {
-//     const posX = e.clientX - canvas.getBoundingClientRect().left;
-//     const posY = e.clientY - canvas.getBoundingClientRect().top;
-//     const dx = Math.floor(posX / 64) * 64;
-//     const dy = Math.floor(posY / 64) * 64;
-
-//     if (!itemIsInScreenBounds(dx, dy) && !itemIsInEquipSection(dx, dy)) {
-//       item.isDragging = false;
-//       canvas.style.cursor = 'crosshair';
-//     }; 
-    
-//     if (itemIsInScreenBounds(dx, dy) && !collisionDetect(dx, dy) && !waterDetect(dx, dy)) {
-//       item.scale = 1;
-//       item.coordinates = { dx, dy };
-//       item.isDragging = false;  
-//       canvas.style.cursor = 'grab';
-//       if (equipped.includes(item)) {
-//         items.push(item);
-//         resetEquipmentSlot(item);
-//         equipped.splice(equipped.indexOf(item), 1);
-//       };
-//     };
-
-//     if (waterDetect(dx, dy)) {
-//       if (items.includes(item)) items.splice(items.indexOf(item), 1);
-//       if (equipped.includes(item)) {
-//         resetEquipmentSlot(item);
-//         equipped.splice(equipped.indexOf(item), 1);
-//       };
-//       canvas.style.cursor = 'crosshair';
-//     } else if (collisionDetect(dx, dy)) {
-//       item.isDragging = false;
-//       canvas.style.cursor = 'crosshair';
-//     };
-
-//     if (itemIsInEquipSection(dx, dy) && currentMenu === 'inventory') {
-//       handleEquipping(item);
-//       canvas.style.cursor = 'grab';
-//     };
-
-//     drawOasis();
-//     drawEquipmentSection();
-//     drawInventorySection();
-//   };
-
-//   if (form.closed) {
-//     backpack = player.data.details.equipped.back;
-//     items.concat(equipped).forEach(item => {
-//       if (item.shifted && backpack !== "empty") {
-//         handleShiftMouseUp(backpack, item);    
-//       } else 
-//       if (item.isDragging) {
-//         handleDragging(item);
-//       };
-//       isShiftKeyPressed = false;
-//     });
-//   };
-// };
-// event listeners --------------------------------------------------
+// event listeners -----------------------------------------------
 addEventListener("DOMContentLoaded", e => {
   handleDOMContentLoaded();
   
@@ -968,6 +954,8 @@ addEventListener("DOMContentLoaded", e => {
   addEventListener('mousedown', handleMouseDown);
   addEventListener('mousemove', handleMouseMove);
   addEventListener('mouseup', handleMouseUp);
+
+  addEventListener('contextmenu', handleRightClick);
 
   addEventListener('keydown', handleKeyDown);
   // addEventListener('keyup', handleKeyUp);

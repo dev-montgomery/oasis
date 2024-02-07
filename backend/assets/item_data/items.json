@@ -2,6 +2,7 @@
   "container":{
     "depot":{
       "contents":[],
+      "state":"closed",
       "spaces":36,
       "capacity":"n/a"
     }
@@ -9,23 +10,27 @@
   "back":{
     "backpack":{
       "contents":[],
+      "state":"closed",
       "spaces":18,
       "capacity":0.5
     },
     "labledbackpack":{
-      "name": null,
+      "label": null,
       "contents":[],
+      "state":"closed",
       "spaces":18,
       "capacity":0.5
     },
     "enchantedbackpack":{
       "contents":[],
+      "state":"closed",
       "spaces":36,
       "capacity":0.5
     },
     "labeledenchantedbackpack":{
-      "name": null,
+      "label": null,
       "contents":[],
+      "state":"closed",
       "spaces":36,
       "capacity":0.5
     }
