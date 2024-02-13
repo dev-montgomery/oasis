@@ -30,8 +30,9 @@ const equipLocations = {
   feet: { x: screen.width + 144, y: 144 }    
 };
 const inventoryLocations = { 
-  primary: { open: false, inventory: [], y: 292 }, 
-  secondary: { open: false, inventory: [], y: 516 } 
+  primary: { inventory: [], y: 292 }, 
+  expanded: false,
+  secondary: { inventory: [], y: 516 },
 };
 const chat = { 
   open: false, 
@@ -43,7 +44,7 @@ let currentMenu = 'inventory';
 let items = [];
 let equipped = [];
 let inventory = [];
-let depot = [];
+let secondinventory = [];
 
 let boundaries = [];
 let wateries = [];
@@ -175,7 +176,7 @@ const itemIsInEquipSection = (dx, dy) => {
 };
 const itemIsInInventorySection = (dx, dy) => {
   if (inventoryLocations.primary.open){
-    if (!inventoryLocations.primary.expanded) {
+    if (!inventoryLocations.secondary.open) {
       return isPointInsideRectangle(dx, dy, {
         x: screen.width,
         y: inventoryLocations.primary.y,
@@ -206,28 +207,23 @@ const itemIsInSecondaryInventorySection = (dx, dy) => {
 // init item function --------------------------------------------
 const initItem = (id, type, name, sx, sy, dx, dy, scale = 1) => {
   const rpgItem = new Item(id, type, name, { source: { sx, sy }, coordinates: { dx, dy } }, scale);
-  
   const category = resources.itemData[type];
-  Object.assign(rpgItem, category[name]);
   
-  if (itemIsInEquipSection(dx, dy)) {
+  Object.assign(rpgItem, category[name]);
+
+  const backpack = player.data.details.equipped.back;
+  
+  if (backpack.hasOwnProperty('contents') && backpack.contents.find(item => item.id === rpgItem.id)){
+    rpgItem.scale = 0.5;
+    inventory.push(rpgItem);
+  } else if (itemIsInEquipSection(dx, dy)) {
     rpgItem.scale = 0.5;
     equipped.push(rpgItem);
-  };
-  
-  if (itemIsInScreenBounds(rpgItem.coordinates.dx, rpgItem.coordinates.dy)) {
+  } else {
     items.push(rpgItem);
   };
-  
-  const backpack = player.data.details.equipped.back;
-  if (backpack.hasOwnProperty('contents')) {
-    if (backpack.contents.find(item => item.id === rpgItem.id)){
-      rpgItem.scale = 0.5;
-      inventory.push(rpgItem);
-    };
-  }; 
 };
-const loadItems = (container) => {
+const loadItemsInContainer = (container) => {
   container.forEach(item => {
     initItem = (item.id, item.type, item.name, item.source.sx, item.source.sy, item.coordinates.dx, item.coordinates.dy, item.scale);
   });
@@ -594,17 +590,12 @@ const handleLogin = async e => {
       game.on = true;
       game.off = false;
 
+      const backpack = player.data.details.equipped.back;
+      
       appendPlayerStatData();
       initPlayerEquipmentAndInventory();
       drawOasis();
       drawMenu();
-
-      const backpack = player.data.details.equipped.back;
-      if (backpack !== 'empty') {
-        inventoryLocations.primary.inventory.push(backpack);
-        inventoryLocations.primary.open = true;
-        drawInventorySection();
-      };
       // could add a character animation poofing into existence
     };
   }, 500);
@@ -653,23 +644,22 @@ const appendPlayerStatData = () => {
 const initPlayerEquipmentAndInventory = () => {
   const equippedItems = player.data.details.equipped;
   
+  // create all equipped items
   for (const piece in equippedItems) {
     if (equippedItems[piece] !== 'empty') {
       const item = equippedItems[piece];
-      if (item.type === 'back') {
-        inventoryLocations.primary.open = true;
-        inventoryLocations.primary.expanded = true;
-      };
       initItem(item.id, item.type, item.name, item.source.sx, item.source.sy, item.coordinates.dx, item.coordinates.dy, item.scale);
     };
   };
   
+  // create all inventory items
   const backpack = equippedItems.back;
 
-  if (backpack !== "empty") {
+  if (backpack.hasOwnProperty('contents')) {
     backpack.contents.forEach(item => {
       initItem(item.id, item.type, item.name, item.source.sx, item.source.sy, item.coordinates.dx, item.coordinates.dy, item.scale);
     });
+    inventoryLocations.primary.inventory.push(backpack);
   };
 };
 
@@ -818,8 +808,16 @@ const handleMouseUp = e => {
 };
 
 // contextmenu event listener
-const handleInventory = (item) => {
+const goBack = (useItem) => {
+  const firstSection = inventoryLocations.primary.inventory;
+  if (firstSection[firstSection.length - 1] === useItem) {
+    firstSection.pop();
+  };
   
+  const secondSection = inventoryLocations.secondary.inventory;
+  if (secondSection[secondSection.length - 1] === useItem) {
+    secondSection.pop();
+  };
 };
 
 const drawInventorySection = () => {
@@ -827,8 +825,9 @@ const drawInventorySection = () => {
   ctx.fillStyle = '#2e2e2e';
   ctx.fillRect(screen.width, 256, 192, 448);  
 
-  const drawSection = (container, coordY) => {
+  const drawSection = (container = null, coordY = inventoryLocations.primary.y) => {
     if (container !== 'empty' || container !== null) {
+      
       ctx.drawImage(
         menu.image, 
         menu.containers[container.name].sx, 
@@ -844,7 +843,7 @@ const drawInventorySection = () => {
       const gapBetweenStorageSpaces = 6;
       const rowLength = 5
       const unusedSpacesToFillOutRow = rowLength - (container.spaces % rowLength);
-      const numberOfSpacesToDraw = expanded ? container.spaces + unusedSpacesToFillOutRow : 20; 
+      const numberOfSpacesToDraw = inventoryLocations.expanded ? container.spaces + unusedSpacesToFillOutRow : 20; 
     
       for (let i = 0; i < numberOfSpacesToDraw; i++) {
         const x = i % rowLength * 36;
@@ -868,34 +867,49 @@ const drawInventorySection = () => {
     };
   };
 
-  const first = inventoryLocations.primary;
-  const second = inventoryLocations.secondary;
-  let expanded = true;
+  const firstSection = inventoryLocations.primary;
+  const secondSection = inventoryLocations.secondary;
 
-  if (first.open && !second.open) {
-    const currentFirst = first.inventory[first.inventory - 1];
-    expanded = true;
-    drawSection(currentFirst, first.y)
-  } else if (first.open && second.open) {
-    const currentFirst = first.inventory[first.inventory - 1];
-    const currentSecond = second.inventory[second.inventory - 1];
-    expanded = false;
-    drawSection(currentSecond, second.y);
-  };  
+  const currFirstSection = firstSection.inventory.length > 0 ? firstSection.inventory[firstSection.inventory.length - 1] : null;
+  const currSecondSection = secondSection.inventory.length > 0 ? secondSection.inventory[secondSection.inventory.length - 1] : null;
+  
+  if (currFirstSection !== null && currFirstSection.hasOwnProperty('contents')) {
+    drawSection(currFirstSection, firstSection.y);
+  };
+
+  if (currSecondSection !== null && currSecondSection.hasOwnProperty('contents')) {
+    drawSection(currSecondSection, secondSection.y)
+  };
 };  
 
 const handleRightClick = e => {
   if (game.on) {
     const mouseX = e.clientX - canvas.getBoundingClientRect().left;
     const mouseY = e.clientY - canvas.getBoundingClientRect().top;
-    const useItem = findItemUnderMouse(mouseX, mouseY, [...items, ...equipped, ...inventory, ...depot]);
+    const useItem = findItemUnderMouse(mouseX, mouseY, [...items, ...equipped, ...inventory, ...secondinventory]);
 
-    if (useItem.type === 'back' && useItem.state === 'closed') {
-      useItem.state = 'open';
-      handleInventory(useItem);
-    } else if (useItem.type === 'back' && useItem.state === 'open') {
-      useItem.state = 'closed';
-      handleInventory(useItem);
+    if (isInRangeOfPlayer(useItem.coordinates.dx, useItem.coordinates.dy) || [...equipped, ...inventory, ...secondinventory].includes(useItem)) {
+      const firstSection = inventoryLocations.primary.inventory;
+      const secondSection = inventoryLocations.secondary.inventory;
+
+      if (firstSection.length === 0) {
+        firstSection.push(useItem);
+        inventoryLocations.expanded = true;
+      } else if (firstSection[firstSection.length - 1].includes(useItem) && secondSection.length === 0) {
+        secondSection.push(useItem);
+        inventoryLocations.expanded = false;
+      } else if (firstSection[firstSection.length - 1].includes(useItem) && secondSection.length > 0) {
+        firstSection.push(useItem);
+        inventoryLocations.expanded = false;
+      } else if (firstSection.length > 0 && secondSection[secondSection.length - 1].includes(useItem)) {
+        secondSection.push(useItem);
+        inventoryLocations.expanded = false;
+      } else if (firstSection.length > 0) {
+        secondSection = [useItem];
+        inventoryLocations.expanded = false;
+      };
+
+      drawInventorySection();
     };
   };
 };
