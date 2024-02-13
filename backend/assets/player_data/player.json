@@ -40,27 +40,7 @@
         "equipped": {
           "neck": "empty",
           "head": "empty",
-          "back": {
-            "image": {},
-            "source": {
-              "sx": 0,
-              "sy": 448
-            },
-            "coordinates": {
-              "dx": 976,
-              "dy": 16
-            },
-            "size": 64,
-            "id": 7.005658608389989,
-            "type": "back",
-            "name": "backpack",
-            "scale": 0.5,
-            "isDragging": false,
-            "contents": [],
-            "state": "open",
-            "spaces": 18,
-            "capacity": 0.5
-          },
+          "back": "empty",
           "mainhand": "empty",
           "offhand": "empty",
           "chest": "empty",
