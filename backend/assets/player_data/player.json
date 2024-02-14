@@ -40,7 +40,26 @@
         "equipped": {
           "neck": "empty",
           "head": "empty",
-          "back": "empty",
+          "back": {
+            "image": {},
+            "source": {
+              "sx": 64,
+              "sy": 448
+            },
+            "coordinates": {
+              "dx": 976,
+              "dy": 16
+            },
+            "size": 64,
+            "id": 14.133392668799974,
+            "type": "back",
+            "name": "enchantedbackpack",
+            "scale": 0.5,
+            "isDragging": false,
+            "contents": [],
+            "spaces": 36,
+            "capacity": 0.5
+          },
           "mainhand": "empty",
           "offhand": "empty",
           "chest": "empty",
