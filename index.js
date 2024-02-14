@@ -431,15 +431,20 @@ const handleEquipping = (item) => {
     const resetPreviousItem = (type) => {
       if (playersEquippedItems[type] !== 'empty') {
         const prev = equipped.find(gear => gear.id === playersEquippedItems[type].id);
-        
-        if (prev.type === 'back') {
-          prev.state = 'closed';
+
+        if (prev.type === 'back' && inventoryLocations.primary.inventory[0] === prev) {
+          if (inventoryLocations.secondary.inventory.length > 0) {
+            inventoryLocations.primary.inventory = inventoryLocations.secondary.inventory;
+            inventoryLocations.primary.inventory = [];
+          } else {
+            inventoryLocations.primary.inventory = [];
+          };
         };
         
         prev.coordinates.dx = item.coordinates.dx;
         prev.coordinates.dy = item.coordinates.dy;
         prev.scale = 1;
-        
+
         if (itemIsInScreenBounds(prev.coordinates.dx, prev.coordinates.dy)) {
           items.push(prev);
           equipped.splice(equipped.indexOf(prev), 1);
@@ -457,13 +462,19 @@ const handleEquipping = (item) => {
       item.coordinates.dy = equipLocations[type].y;
       item.scale = 0.5;
       item.isDragging = false;
-      
-      if (type === 'back') {
-        item.state = 'open';
-      };
 
       playersEquippedItems[type] = item;
       equipped.push(item);
+
+      if (item.type === 'back') {
+        if (inventoryLocations.primary.inventory.length > 0 && inventoryLocations.secondary.inventory.length === 0) {
+          inventoryLocations.secondary.inventory = inventoryLocations.primary.inventory;
+          inventoryLocations.primary.inventory = [item];
+        } else {
+          inventoryLocations.primary.inventory = [item];
+          inventoryLocations.expanded = true;
+        };
+      };
 
       if (items.includes(item)) {
         items.splice(items.indexOf(item), 1);
@@ -493,6 +504,12 @@ const resetEquipmentSlot = (item) => {
     case 'neck':
     case 'head':
     case 'back':
+      if (inventoryLocations.secondary.inventory.length > 0) {
+        inventoryLocations.primary.inventory = inventoryLocations.secondary.inventory;
+        inventoryLocations.primary.inventory = [];
+      } else {
+        inventoryLocations.primary.inventory = [];
+      };
     case 'chest':
     case 'offhand':
     case 'mainhand':
@@ -660,6 +677,7 @@ const initPlayerEquipmentAndInventory = () => {
       initItem(item.id, item.type, item.name, item.source.sx, item.source.sy, item.coordinates.dx, item.coordinates.dy, item.scale);
     });
     inventoryLocations.primary.inventory.push(backpack);
+    inventoryLocations.expanded = true;
   };
 };
 
@@ -892,21 +910,23 @@ const handleRightClick = e => {
       const firstSection = inventoryLocations.primary.inventory;
       const secondSection = inventoryLocations.secondary.inventory;
 
-      if (firstSection.length === 0) {
-        firstSection.push(useItem);
-        inventoryLocations.expanded = true;
-      } else if (firstSection[firstSection.length - 1].includes(useItem) && secondSection.length === 0) {
-        secondSection.push(useItem);
-        inventoryLocations.expanded = false;
-      } else if (firstSection[firstSection.length - 1].includes(useItem) && secondSection.length > 0) {
-        firstSection.push(useItem);
-        inventoryLocations.expanded = false;
-      } else if (firstSection.length > 0 && secondSection[secondSection.length - 1].includes(useItem)) {
-        secondSection.push(useItem);
-        inventoryLocations.expanded = false;
-      } else if (firstSection.length > 0) {
-        secondSection = [useItem];
-        inventoryLocations.expanded = false;
+      if (!firstSection.includes(useItem) && !secondSection.includes(useItem)) {
+        if (firstSection.length === 0) {
+          firstSection.push(useItem);
+          inventoryLocations.expanded = true;
+        } else if (firstSection[firstSection.length - 1].includes(useItem) && secondSection.length === 0) {
+          secondSection.push(useItem);
+          inventoryLocations.expanded = false;
+        } else if (firstSection[firstSection.length - 1].includes(useItem) && secondSection.length > 0) {
+          firstSection.push(useItem);
+          inventoryLocations.expanded = false;
+        } else if (firstSection.length > 0 && secondSection[secondSection.length - 1].includes(useItem)) {
+          secondSection.push(useItem);
+          inventoryLocations.expanded = false;
+        } else if (firstSection.length > 0) {
+          secondSection = [useItem];
+          inventoryLocations.expanded = false;
+        };
       };
 
       drawInventorySection();
@@ -942,28 +962,24 @@ const handleKeyDown = e => {
 
   switch (e.key) {
     case KEY_W:
-      console.log('w');
       player.direction = player.source.upward;
       dy -= player.size;
       valY--;
       break;
 
     case KEY_S:
-      console.log('s');
       player.direction = player.source.downward;
       dy += player.size;
       valY++;
       break;
 
     case KEY_A:
-      console.log('a');
       player.direction = player.source.leftward;
       dx -= player.size;
       valX--;
       break;
 
     case KEY_D:
-      console.log('d');
       player.direction = player.source.rightward;
       dx += player.size;
       valX++;
