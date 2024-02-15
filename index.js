@@ -506,7 +506,7 @@ const resetEquipmentSlot = (item) => {
     case 'back':
       if (inventoryLocations.secondary.inventory.length > 0) {
         inventoryLocations.primary.inventory = inventoryLocations.secondary.inventory;
-        inventoryLocations.primary.inventory = [];
+        inventoryLocations.secondary.inventory = [];
       } else {
         inventoryLocations.primary.inventory = [];
       };
@@ -839,13 +839,20 @@ const goBack = (useItem) => {
 };
 
 const drawInventorySection = () => {
-  ctx.clearRect(screen.width, 256, 192, 448);
-  ctx.fillStyle = '#2e2e2e';
-  ctx.fillRect(screen.width, 256, 192, 448);  
+  const firstSection = inventoryLocations.primary;
+  const secondSection = inventoryLocations.secondary;
+  
+  const currFirstSection = firstSection.inventory.length > 0 ? firstSection.inventory[firstSection.inventory.length - 1] : null;
+  const currSecondSection = secondSection.inventory.length > 0 ? secondSection.inventory[secondSection.inventory.length - 1] : null;
+   
+  if (firstSection.inventory.length === 0 && secondSection.inventory.length === 0) {
+    ctx.clearRect(screen.width, 256, 192, 448);
+    ctx.fillStyle = '#2e2e2e';
+    ctx.fillRect(screen.width, 256, 192, 448);  
+  };
 
   const drawSection = (container = null, coordY = inventoryLocations.primary.y) => {
     if (container !== 'empty' || container !== null) {
-      
       ctx.drawImage(
         menu.image, 
         menu.containers[container.name].sx, 
@@ -861,7 +868,7 @@ const drawInventorySection = () => {
       const gapBetweenStorageSpaces = 6;
       const rowLength = 5
       const unusedSpacesToFillOutRow = rowLength - (container.spaces % rowLength);
-      const numberOfSpacesToDraw = inventoryLocations.expanded ? container.spaces + unusedSpacesToFillOutRow : 20; 
+      const numberOfSpacesToDraw = inventoryLocations.expanded ? container.spaces + unusedSpacesToFillOutRow : 25; 
     
       for (let i = 0; i < numberOfSpacesToDraw; i++) {
         const x = i % rowLength * 36;
@@ -884,23 +891,27 @@ const drawInventorySection = () => {
       };
     };
   };
-
-  const firstSection = inventoryLocations.primary;
-  const secondSection = inventoryLocations.secondary;
-
-  const currFirstSection = firstSection.inventory.length > 0 ? firstSection.inventory[firstSection.inventory.length - 1] : null;
-  const currSecondSection = secondSection.inventory.length > 0 ? secondSection.inventory[secondSection.inventory.length - 1] : null;
   
   if (currFirstSection !== null && currFirstSection.hasOwnProperty('contents')) {
+    ctx.clearRect(screen.width, inventoryLocations.primary.y - 36, 192, 448);
+    ctx.fillStyle = '#2e2e2e';
+    ctx.fillRect(screen.width, inventoryLocations.primary.y - 36, 192, 448);  
     drawSection(currFirstSection, firstSection.y);
   };
 
   if (currSecondSection !== null && currSecondSection.hasOwnProperty('contents')) {
+    ctx.clearRect(screen.width, inventoryLocations.secondary.y - 36, 192, 224);
+    ctx.fillStyle = '#2e2e2e';
+    ctx.fillRect(screen.width, inventoryLocations.secondary.y - 36, 192, 224);  
     drawSection(currSecondSection, secondSection.y)
   };
+
+  console.log(firstSection.inventory, secondSection.inventory);
 };  
 
 const handleRightClick = e => {
+  e.preventDefault();
+
   if (game.on) {
     const mouseX = e.clientX - canvas.getBoundingClientRect().left;
     const mouseY = e.clientY - canvas.getBoundingClientRect().top;
@@ -911,22 +922,31 @@ const handleRightClick = e => {
       const secondSection = inventoryLocations.secondary.inventory;
 
       if (!firstSection.includes(useItem) && !secondSection.includes(useItem)) {
+
         if (firstSection.length === 0) {
           firstSection.push(useItem);
-          inventoryLocations.expanded = true;
-        } else if (firstSection[firstSection.length - 1].includes(useItem) && secondSection.length === 0) {
+          inventoryLocations.expanded = true;  
+        } else if (firstSection.length > 0 && secondSection.length === 0) {
           secondSection.push(useItem);
-          inventoryLocations.expanded = false;
-        } else if (firstSection[firstSection.length - 1].includes(useItem) && secondSection.length > 0) {
-          firstSection.push(useItem);
-          inventoryLocations.expanded = false;
-        } else if (firstSection.length > 0 && secondSection[secondSection.length - 1].includes(useItem)) {
-          secondSection.push(useItem);
-          inventoryLocations.expanded = false;
-        } else if (firstSection.length > 0) {
-          secondSection = [useItem];
-          inventoryLocations.expanded = false;
+          inventoryLocations.expanded = false;  
         };
+
+        // if (firstSection.length === 0) {
+        //   firstSection.push(useItem);
+        //   inventoryLocations.expanded = true;
+        // } else if (firstSection[firstSection.length - 1].contents.includes(useItem) && secondSection.length === 0) {
+        //   secondSection.push(useItem);
+        //   inventoryLocations.expanded = false;
+        // } else if (firstSection[firstSection.length - 1].contents.includes(useItem) && secondSection.length > 0) {
+        //   firstSection.push(useItem);
+        //   inventoryLocations.expanded = false;
+        // } else if (firstSection.length > 0 && secondSection[secondSection.length - 1].contents.includes(useItem)) {
+        //   secondSection.push(useItem);
+        //   inventoryLocations.expanded = false;
+        // } else if (firstSection.length > 0) {
+        //   secondSection = [useItem];
+        //   inventoryLocations.expanded = false;
+        // };
       };
 
       drawInventorySection();

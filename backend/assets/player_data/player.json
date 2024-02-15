@@ -5,7 +5,7 @@
       "name": "Alzaresh",
       "details": {
         "location": {
-          "x": 94,
+          "x": 93,
           "y": 142
         },
         "lvls": {
@@ -51,7 +51,7 @@
               "dy": 16
             },
             "size": 64,
-            "id": 14.133392668799974,
+            "id": 15.888294069552465,
             "type": "back",
             "name": "enchantedbackpack",
             "scale": 0.5,
