@@ -5,7 +5,7 @@
       "name": "Alzaresh",
       "details": {
         "location": {
-          "x": 94,
+          "x": 93,
           "y": 142
         },
         "lvls": {
@@ -43,7 +43,7 @@
           "back": {
             "image": {},
             "source": {
-              "sx": 64,
+              "sx": 0,
               "sy": 448
             },
             "coordinates": {
@@ -51,13 +51,13 @@
               "dy": 16
             },
             "size": 64,
-            "id": 14.133392668799974,
+            "id": 3.6307461380788144,
             "type": "back",
-            "name": "enchantedbackpack",
+            "name": "backpack",
             "scale": 0.5,
             "isDragging": false,
             "contents": [],
-            "spaces": 36,
+            "spaces": 18,
             "capacity": 0.5
           },
           "mainhand": "empty",
