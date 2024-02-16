@@ -432,12 +432,15 @@ const handleEquipping = (item) => {
       if (playersEquippedItems[type] !== 'empty') {
         const prev = equipped.find(gear => gear.id === playersEquippedItems[type].id);
 
-        if (prev.type === 'back' && inventoryLocations.primary.inventory[0] === prev) {
+        if (prev.type === 'back') {
           if (inventoryLocations.secondary.inventory.length > 0) {
             inventoryLocations.primary.inventory = inventoryLocations.secondary.inventory;
             inventoryLocations.primary.inventory = [];
+            inventory = secondinventory;
+            secondinventory = [];
           } else {
             inventoryLocations.primary.inventory = [];
+            inventory = [];
           };
         };
         
@@ -469,7 +472,10 @@ const handleEquipping = (item) => {
       if (item.type === 'back') {
         if (inventoryLocations.primary.inventory.length > 0 && inventoryLocations.secondary.inventory.length === 0) {
           inventoryLocations.secondary.inventory = inventoryLocations.primary.inventory;
+          secondinventory = inventory;
           inventoryLocations.primary.inventory = [item];
+          inventory = item.contents;
+          inventoryLocations.expanded = false;
         } else {
           inventoryLocations.primary.inventory = [item];
           inventoryLocations.expanded = true;
@@ -529,7 +535,14 @@ const drawEquipmentSection = () => {
 
 // handle inventory items ----------------------------------------
 
-
+{
+  if (inventoryLocations.secondary.inventory.length > 0) {
+    inventoryLocations.primary.inventory = inventoryLocations.secondary.inventory;
+    inventoryLocations.primary.inventory = [];
+  } else {
+    inventoryLocations.primary.inventory = [];
+  };
+};
 // handle loading assets/transition to login
 const handleLoading = () => {
   const numOfAssetsToLoad = 3;
@@ -826,18 +839,6 @@ const handleMouseUp = e => {
 };
 
 // contextmenu event listener
-const goBack = (useItem) => {
-  const firstSection = inventoryLocations.primary.inventory;
-  if (firstSection[firstSection.length - 1] === useItem) {
-    firstSection.pop();
-  };
-  
-  const secondSection = inventoryLocations.secondary.inventory;
-  if (secondSection[secondSection.length - 1] === useItem) {
-    secondSection.pop();
-  };
-};
-
 const drawInventorySection = () => {
   const firstSection = inventoryLocations.primary;
   const secondSection = inventoryLocations.secondary;
@@ -915,40 +916,47 @@ const handleRightClick = e => {
   if (game.on) {
     const mouseX = e.clientX - canvas.getBoundingClientRect().left;
     const mouseY = e.clientY - canvas.getBoundingClientRect().top;
-    const useItem = findItemUnderMouse(mouseX, mouseY, [...items, ...equipped, ...inventory, ...secondinventory]);
+    const useItem = findItemUnderMouse(mouseX, mouseY, [...items, ...inventory, ...secondinventory]);
 
-    if (isInRangeOfPlayer(useItem.coordinates.dx, useItem.coordinates.dy) || [...equipped, ...inventory, ...secondinventory].includes(useItem)) {
-      const firstSection = inventoryLocations.primary.inventory;
-      const secondSection = inventoryLocations.secondary.inventory;
-
-      if (!firstSection.includes(useItem) && !secondSection.includes(useItem)) {
-
+    if (isInRangeOfPlayer(useItem.coordinates.dx, useItem.coordinates.dy) || [...inventory, ...secondinventory].includes(useItem)) {
+      if (useItem && useItem.hasOwnProperty('contents')) {
+        const firstSection = inventoryLocations.primary.inventory;
+        const secondSection = inventoryLocations.secondary.inventory;
+        
         if (firstSection.length === 0) {
           firstSection.push(useItem);
-          inventoryLocations.expanded = true;  
+          inventoryLocations.expanded = true;
+          inventory = useItem.contents;
+        
+        } else if (firstSection[firstSection.length - 1] === useItem) {
+          firstSection.pop();
+          if (firstSection.length > 0) {
+            inventory = firstSection[firstSection.length - 1].contents;
+          } else if (firstSection.length === 0 && secondSection.length > 0) {
+            firstSection.push(secondSection);
+            secondSection = [];
+            secondinventory = [];
+            inventory = firstSection[firstSection.length - 1].contents;
+            inventoryLocations.expanded = true;
+          } else {
+            inventory = [];
+          };
+
         } else if (firstSection.length > 0 && secondSection.length === 0) {
+          inventoryLocations.expanded = false;
           secondSection.push(useItem);
-          inventoryLocations.expanded = false;  
+          secondinventory = useItem.contents;
+          
+        } else if (secondSection.length > 0 && secondSection.includes(useItem)) {
+          secondSection.pop();
+          secondinventory = [];
+          inventoryLocations.expanded = true;
         };
-
-        // if (firstSection.length === 0) {
-        //   firstSection.push(useItem);
-        //   inventoryLocations.expanded = true;
-        // } else if (firstSection[firstSection.length - 1].contents.includes(useItem) && secondSection.length === 0) {
-        //   secondSection.push(useItem);
-        //   inventoryLocations.expanded = false;
-        // } else if (firstSection[firstSection.length - 1].contents.includes(useItem) && secondSection.length > 0) {
-        //   firstSection.push(useItem);
-        //   inventoryLocations.expanded = false;
-        // } else if (firstSection.length > 0 && secondSection[secondSection.length - 1].contents.includes(useItem)) {
-        //   secondSection.push(useItem);
-        //   inventoryLocations.expanded = false;
-        // } else if (firstSection.length > 0) {
-        //   secondSection = [useItem];
-        //   inventoryLocations.expanded = false;
-        // };
+          
+          // secondSection.length === 0) {
+          // secondSection.push(useItem)
+        // } 
       };
-
       drawInventorySection();
     };
   };

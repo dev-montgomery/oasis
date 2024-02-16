@@ -4,6 +4,11 @@
       "contents":[],
       "spaces":36,
       "capacity":"n/a"
+    },
+    "parcel":{
+      "contents":[],
+      "spaces":6,
+      "capacity":1
     }
   },
   "back":{
@@ -168,11 +173,6 @@
     },
     "envelope":{
 
-    },
-    "parcel":{
-      "contents":[],
-      "spaces":6,
-      "capacity":1
     },
     "torch":{
 
