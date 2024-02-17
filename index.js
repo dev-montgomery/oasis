@@ -30,9 +30,9 @@ const equipLocations = {
   feet: { x: screen.width + 144, y: 144 }    
 };
 const inventoryLocations = { 
-  primary: { inventory: [], y: 292 }, 
+  primary: { stack: [], y: 292 }, 
   expanded: false,
-  secondary: { inventory: [], y: 516 },
+  secondary: { stack: [], y: 516 },
 };
 const chat = { 
   open: false, 
@@ -222,11 +222,6 @@ const initItem = (id, type, name, sx, sy, dx, dy, scale = 1) => {
   } else {
     items.push(rpgItem);
   };
-};
-const loadItemsInContainer = (container) => {
-  container.forEach(item => {
-    initItem = (item.id, item.type, item.name, item.source.sx, item.source.sy, item.coordinates.dx, item.coordinates.dy, item.scale);
-  });
 };
 const createRandomID = (input) => {
   return Math.random() * input;
@@ -427,19 +422,21 @@ const drawMenu = (section = 'inventory') => {
 const handleEquipping = (item) => {
   if (currentMenu === 'inventory') {
     const playersEquippedItems = player.data.details.equipped;
-
+    const firstSection = inventoryLocations.primary.stack;
+    const secondSection = inventoryLocations.secondary.stack;
+    
     const resetPreviousItem = (type) => {
       if (playersEquippedItems[type] !== 'empty') {
         const prev = equipped.find(gear => gear.id === playersEquippedItems[type].id);
 
         if (prev.type === 'back') {
-          if (inventoryLocations.secondary.inventory.length > 0) {
-            inventoryLocations.primary.inventory = inventoryLocations.secondary.inventory;
-            inventoryLocations.primary.inventory = [];
+          if (secondSection.length > 0) {
+            firstSection = secondSection;
             inventory = secondinventory;
+            secondSection.splice(0);
             secondinventory = [];
-          } else {
-            inventoryLocations.primary.inventory = [];
+          } else if (secondSection.length === 0) {
+            firstSection.splice(0);
             inventory = [];
           };
         };
@@ -469,15 +466,24 @@ const handleEquipping = (item) => {
       playersEquippedItems[type] = item;
       equipped.push(item);
 
-      if (item.type === 'back') {
-        if (inventoryLocations.primary.inventory.length > 0 && inventoryLocations.secondary.inventory.length === 0) {
-          inventoryLocations.secondary.inventory = inventoryLocations.primary.inventory;
+      if (item.type === 'back') {       
+        if (firstSection.length > 0 && secondSection.length > 0) {
+          firstSection.push(item);
+          inventory = item.contents;
+          secondSection.splice(0);
+          secondinventory = [];
+          inventoryLocations.expanded = true;
+
+        } else if (firstSection.length > 0 && secondSection.length === 0) {
+          secondSection = firstSection;
           secondinventory = inventory;
-          inventoryLocations.primary.inventory = [item];
+          firstSection.push(item);
           inventory = item.contents;
           inventoryLocations.expanded = false;
-        } else {
-          inventoryLocations.primary.inventory = [item];
+
+        } else if (firstSection.length === 0 && secondSection.length === 0) {
+          firstSection.push(item);
+          inventory = item.contents;
           inventoryLocations.expanded = true;
         };
       };
@@ -486,6 +492,8 @@ const handleEquipping = (item) => {
         items.splice(items.indexOf(item), 1);
       } else if (inventory.includes(item)) {
         inventory.splice(inventory.indexOf(item), 1);
+      } else if (secondinventory.includes(item)) {
+        secondinventory.splice(secondinventory.indexOf(item), 1);
       };
     };
 
@@ -510,11 +518,14 @@ const resetEquipmentSlot = (item) => {
     case 'neck':
     case 'head':
     case 'back':
-      if (inventoryLocations.secondary.inventory.length > 0) {
-        inventoryLocations.primary.inventory = inventoryLocations.secondary.inventory;
-        inventoryLocations.secondary.inventory = [];
+      if (inventoryLocations.secondary.stack.length > 0) {
+        inventoryLocations.primary.stack = inventoryLocations.secondary.stack;
+        inventory = secondinventory;
+        inventoryLocations.secondary.stack = [];
+        secondinventory = [];
       } else {
-        inventoryLocations.primary.inventory = [];
+        inventoryLocations.primary.stack = [];
+        inventory = [];
       };
     case 'chest':
     case 'offhand':
@@ -535,14 +546,7 @@ const drawEquipmentSection = () => {
 
 // handle inventory items ----------------------------------------
 
-{
-  if (inventoryLocations.secondary.inventory.length > 0) {
-    inventoryLocations.primary.inventory = inventoryLocations.secondary.inventory;
-    inventoryLocations.primary.inventory = [];
-  } else {
-    inventoryLocations.primary.inventory = [];
-  };
-};
+
 // handle loading assets/transition to login
 const handleLoading = () => {
   const numOfAssetsToLoad = 3;
@@ -685,11 +689,12 @@ const initPlayerEquipmentAndInventory = () => {
   // create all inventory items
   const backpack = equippedItems.back;
 
-  if (backpack.hasOwnProperty('contents')) {
+  if (backpack !== 'empty' && backpack.hasOwnProperty('contents')) {
     backpack.contents.forEach(item => {
       initItem(item.id, item.type, item.name, item.source.sx, item.source.sy, item.coordinates.dx, item.coordinates.dy, item.scale);
     });
-    inventoryLocations.primary.inventory.push(backpack);
+    inventoryLocations.primary.stack.push(backpack);
+    inventory = backpack.contents;
     inventoryLocations.expanded = true;
   };
 };
@@ -843,10 +848,10 @@ const drawInventorySection = () => {
   const firstSection = inventoryLocations.primary;
   const secondSection = inventoryLocations.secondary;
   
-  const currFirstSection = firstSection.inventory.length > 0 ? firstSection.inventory[firstSection.inventory.length - 1] : null;
-  const currSecondSection = secondSection.inventory.length > 0 ? secondSection.inventory[secondSection.inventory.length - 1] : null;
+  const currFirstSection = firstSection.stack.length > 0 ? firstSection.stack[firstSection.stack.length - 1] : null;
+  const currSecondSection = secondSection.stack.length > 0 ? secondSection.stack[secondSection.stack.length - 1] : null;
    
-  if (firstSection.inventory.length === 0 && secondSection.inventory.length === 0) {
+  if (firstSection.stack.length === 0 && secondSection.stack.length === 0) {
     ctx.clearRect(screen.width, 256, 192, 448);
     ctx.fillStyle = '#2e2e2e';
     ctx.fillRect(screen.width, 256, 192, 448);  
@@ -907,7 +912,7 @@ const drawInventorySection = () => {
     drawSection(currSecondSection, secondSection.y)
   };
 
-  console.log(firstSection.inventory, secondSection.inventory);
+  console.log(firstSection.stack, secondSection.stack);
 };  
 
 const handleRightClick = e => {
@@ -917,11 +922,11 @@ const handleRightClick = e => {
     const mouseX = e.clientX - canvas.getBoundingClientRect().left;
     const mouseY = e.clientY - canvas.getBoundingClientRect().top;
     const useItem = findItemUnderMouse(mouseX, mouseY, [...items, ...inventory, ...secondinventory]);
-
-    if (isInRangeOfPlayer(useItem.coordinates.dx, useItem.coordinates.dy) || [...inventory, ...secondinventory].includes(useItem)) {
+    
+    if (useItem !== null && isInRangeOfPlayer(useItem.coordinates.dx, useItem.coordinates.dy) || useItem !== null && [...inventory, ...secondinventory].includes(useItem)) {
       if (useItem && useItem.hasOwnProperty('contents')) {
-        const firstSection = inventoryLocations.primary.inventory;
-        const secondSection = inventoryLocations.secondary.inventory;
+        const firstSection = inventoryLocations.primary.stack;
+        const secondSection = inventoryLocations.secondary.stack;
         
         if (firstSection.length === 0) {
           firstSection.push(useItem);
@@ -934,7 +939,7 @@ const handleRightClick = e => {
             inventory = firstSection[firstSection.length - 1].contents;
           } else if (firstSection.length === 0 && secondSection.length > 0) {
             firstSection.push(secondSection);
-            secondSection = [];
+            secondSection.splice(0);
             secondinventory = [];
             inventory = firstSection[firstSection.length - 1].contents;
             inventoryLocations.expanded = true;
