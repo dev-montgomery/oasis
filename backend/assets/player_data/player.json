@@ -5,7 +5,7 @@
       "name": "Alzaresh",
       "details": {
         "location": {
-          "x": 93,
+          "x": 95,
           "y": 142
         },
         "lvls": {
@@ -43,7 +43,7 @@
           "back": {
             "image": {},
             "source": {
-              "sx": 0,
+              "sx": 64,
               "sy": 448
             },
             "coordinates": {
@@ -51,13 +51,13 @@
               "dy": 16
             },
             "size": 64,
-            "id": 7.070541476068984,
+            "id": 10.8683513743477,
             "type": "back",
-            "name": "backpack",
+            "name": "enchantedbackpack",
             "scale": 0.5,
             "isDragging": false,
             "contents": [],
-            "spaces": 18,
+            "spaces": 36,
             "capacity": 0.5
           },
           "mainhand": "empty",
@@ -108,7 +108,26 @@
     "equipped": {
       "neck": "empty",
       "head": "empty",
-      "back": "empty",
+      "back": {
+        "image": {},
+        "source": {
+          "sx": 64,
+          "sy": 448
+        },
+        "coordinates": {
+          "dx": 976,
+          "dy": 16
+        },
+        "size": 64,
+        "id": 5.454816083257597,
+        "type": "back",
+        "name": "enchantedbackpack",
+        "scale": 0.5,
+        "isDragging": false,
+        "contents": [],
+        "spaces": 36,
+        "capacity": 0.5
+      },
       "mainhand": "empty",
       "offhand": "empty",
       "chest": "empty",

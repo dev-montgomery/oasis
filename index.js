@@ -431,7 +431,7 @@ const handleEquipping = (item) => {
 
         if (prev.type === 'back') {
           if (secondSection.length > 0) {
-            firstSection = secondSection;
+            firstSection.splice(0).push(...secondSection);
             inventory = secondinventory;
             secondSection.splice(0);
             secondinventory = [];
@@ -468,16 +468,16 @@ const handleEquipping = (item) => {
 
       if (item.type === 'back') {       
         if (firstSection.length > 0 && secondSection.length > 0) {
-          firstSection.push(item);
+          firstSection.splice(0).push(item);
           inventory = item.contents;
           secondSection.splice(0);
           secondinventory = [];
           inventoryLocations.expanded = true;
 
         } else if (firstSection.length > 0 && secondSection.length === 0) {
-          secondSection = firstSection;
+          secondSection.splice(0).push(...firstSection);
           secondinventory = inventory;
-          firstSection.push(item);
+          firstSection.splice(0).push(item);
           inventory = item.contents;
           inventoryLocations.expanded = false;
 
@@ -519,12 +519,12 @@ const resetEquipmentSlot = (item) => {
     case 'head':
     case 'back':
       if (inventoryLocations.secondary.stack.length > 0) {
-        inventoryLocations.primary.stack = inventoryLocations.secondary.stack;
+        inventoryLocations.primary.stack.splice(0).push(...inventoryLocations.secondary.stack);
         inventory = secondinventory;
-        inventoryLocations.secondary.stack = [];
+        inventoryLocations.secondary.stack.splice(0);
         secondinventory = [];
       } else {
-        inventoryLocations.primary.stack = [];
+        inventoryLocations.primary.stack.splice(0);
         inventory = [];
       };
     case 'chest':
@@ -918,54 +918,54 @@ const drawInventorySection = () => {
 const handleRightClick = e => {
   e.preventDefault();
 
-  if (game.on) {
-    const mouseX = e.clientX - canvas.getBoundingClientRect().left;
-    const mouseY = e.clientY - canvas.getBoundingClientRect().top;
-    const useItem = findItemUnderMouse(mouseX, mouseY, [...items, ...inventory, ...secondinventory]);
-    
-    if (useItem !== null && isInRangeOfPlayer(useItem.coordinates.dx, useItem.coordinates.dy) || useItem !== null && [...inventory, ...secondinventory].includes(useItem)) {
-      if (useItem && useItem.hasOwnProperty('contents')) {
-        const firstSection = inventoryLocations.primary.stack;
-        const secondSection = inventoryLocations.secondary.stack;
-        
-        if (firstSection.length === 0) {
-          firstSection.push(useItem);
-          inventoryLocations.expanded = true;
-          inventory = useItem.contents;
-        
-        } else if (firstSection[firstSection.length - 1] === useItem) {
-          firstSection.pop();
-          if (firstSection.length > 0) {
-            inventory = firstSection[firstSection.length - 1].contents;
-          } else if (firstSection.length === 0 && secondSection.length > 0) {
-            firstSection.push(secondSection);
-            secondSection.splice(0);
-            secondinventory = [];
-            inventory = firstSection[firstSection.length - 1].contents;
-            inventoryLocations.expanded = true;
-          } else {
-            inventory = [];
-          };
+  if (!game.on) return;
 
-        } else if (firstSection.length > 0 && secondSection.length === 0) {
-          inventoryLocations.expanded = false;
+  const mouseX = e.clientX - canvas.getBoundingClientRect().left;
+  const mouseY = e.clientY - canvas.getBoundingClientRect().top;
+  const allItems = [...items, ...equipped, ...inventory, ...secondinventory];
+  const useItem = findItemUnderMouse(mouseX, mouseY, allItems);
+
+  if (!useItem) return;
+
+  if (isInRangeOfPlayer(useItem.coordinates.dx, useItem.coordinates.dy) || [...equipped, ...inventory, ...secondinventory].includes(useItem)) {
+    if (useItem.hasOwnProperty('contents')) {
+      const firstSection = inventoryLocations.primary.stack;
+      const secondSection = inventoryLocations.secondary.stack;
+
+      if (firstSection.length === 0) {
+        firstSection.push(useItem);
+        inventory = useItem.contents;
+        inventoryLocations.expanded = true;
+      } else if (firstSection.length > 0 && secondSection.length === 0) {
+        if (firstSection[firstSection.length - 1] === useItem) {
+          firstSection.pop();
+          inventory = [];
+        } else {
           secondSection.push(useItem);
           secondinventory = useItem.contents;
-          
-        } else if (secondSection.length > 0 && secondSection.includes(useItem)) {
-          secondSection.pop();
-          secondinventory = [];
-          inventoryLocations.expanded = true;
-        };
-          
-          // secondSection.length === 0) {
-          // secondSection.push(useItem)
-        // } 
-      };
+          inventoryLocations.expanded = false;
+        }
+      } else {
+        const targetSection = firstSection[firstSection.length - 1].contents.includes(useItem) ? firstSection : secondSection;
+        const otherSection = targetSection === firstSection ? secondSection : firstSection;
+        const targetInventory = targetSection === firstSection ? inventory : secondinventory;
+        
+        if (targetSection[targetSection.length - 1] === useItem) {
+          targetSection.pop();
+          targetInventory = targetSection.length > 0 ? targetSection[targetSection.length - 1].contents : [];
+          if (targetSection.length === 0) inventoryLocations.expanded = true;
+        } else {
+          targetSection.push(useItem);
+          targetInventory = useItem.contents;
+          inventoryLocations.expanded = targetSection === firstSection ? true : false;
+        }
+        otherSection.splice(0, otherSection.length);
+      }
       drawInventorySection();
-    };
-  };
+    }
+  }
 };
+
 
 // handle player movement/update item locations 
 const updateWorldLocations = (valX, valY) => {
