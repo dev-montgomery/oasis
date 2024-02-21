@@ -6,7 +6,7 @@
       "details": {
         "location": {
           "x": 93,
-          "y": 142
+          "y": 141
         },
         "lvls": {
           "lvl": 0,
@@ -40,26 +40,7 @@
         "equipped": {
           "neck": "empty",
           "head": "empty",
-          "back": {
-            "image": {},
-            "source": {
-              "sx": 64,
-              "sy": 448
-            },
-            "coordinates": {
-              "dx": 976,
-              "dy": 16
-            },
-            "size": 64,
-            "id": 3.0901038135823313,
-            "type": "back",
-            "name": "enchantedbackpack",
-            "scale": 0.5,
-            "isDragging": false,
-            "contents": [],
-            "spaces": 36,
-            "capacity": 0.5
-          },
+          "back": "empty",
           "mainhand": "empty",
           "offhand": "empty",
           "chest": "empty",
@@ -108,26 +89,7 @@
     "equipped": {
       "neck": "empty",
       "head": "empty",
-      "back": {
-        "image": {},
-        "source": {
-          "sx": 64,
-          "sy": 448
-        },
-        "coordinates": {
-          "dx": 976,
-          "dy": 16
-        },
-        "size": 64,
-        "id": 3.8724286341688625,
-        "type": "back",
-        "name": "enchantedbackpack",
-        "scale": 0.5,
-        "isDragging": false,
-        "contents": [],
-        "spaces": 36,
-        "capacity": 0.5
-      },
+      "back": "empty",
       "mainhand": "empty",
       "offhand": "empty",
       "chest": "empty",
