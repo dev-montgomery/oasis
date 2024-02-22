@@ -945,6 +945,53 @@ const handleRightClick = e => {
       const firstSection = inventoryLocations.primary.stack;
       const secondSection = inventoryLocations.secondary.stack;
       const backpack = player.data.details.equipped.back;
+    
+      const appendToFirstSection = (item) => {
+        firstSection.push(item);
+        inventory = item.contents;
+      };
+
+      const appendToFirstSectionFromSecondSection = (item) => {
+        firstSection.splice(0);
+        firstSection.push(...secondSection);
+        inventory = secondinventory;
+        secondSection.splice(0);
+        secondinventory = [];
+        inventoryLocations.expanded = true;
+      };
+
+      const appendToSecondSection = (item) => {
+        secondSection.push(item);
+        secondinventory = item.contents;
+        inventoryLocations.expanded = false;
+      };
+
+      const appendToSecondSectionFromFirstSection = (item) => {
+        secondSection.push(...firstSection);
+        secondinventory = inventory;
+        firstSection.splice(0);
+        appendToFirstSection(item);
+        inventoryLocations.expanded = false;
+      };
+
+      const clearFirstSection = () => {
+        firstSection.splice(0);
+        inventory = [];
+      };
+
+      const clearSecondSection = () => {
+        secondSection.splice(0);
+        secondinventory = [];
+        inventoryLocations.expanded = true;
+      };
+
+      if (backpack === useItem && firstSection[firstSection.length - 1] === useItem) {
+        
+      } else
+
+      if (backpack === useItem && firstSection[firstSection.length - 1] !== useItem) {
+
+      } else
       
       if (firstSection.length > 0 && secondSection.length > 0) {
         if (firstSection[firstSection.length - 1].id !== useItem.id && secondSection[secondSection.length - 1].id !== useItem.id) {
