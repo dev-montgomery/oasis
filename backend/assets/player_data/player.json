@@ -38,14 +38,152 @@
           "fishingxp": 0
         },
         "equipped": {
-          "neck": "empty",
-          "head": "empty",
-          "back": "empty",
-          "mainhand": "empty",
-          "offhand": "empty",
-          "chest": "empty",
-          "legs": "empty",
-          "feet": "empty"
+          "neck": {
+            "image": {},
+            "source": {
+              "sx": 512,
+              "sy": 128
+            },
+            "coordinates": {
+              "dx": 848,
+              "dy": 16
+            },
+            "size": 64,
+            "id": 10.862346644342622,
+            "type": "neck",
+            "name": "silver",
+            "scale": 0.5,
+            "isDragging": false,
+            "offense": 1,
+            "defense": 1
+          },
+          "head": {
+            "image": {},
+            "source": {
+              "sx": 0,
+              "sy": 128
+            },
+            "coordinates": {
+              "dx": 912,
+              "dy": 16
+            },
+            "size": 64,
+            "id": 0.30606246624265077,
+            "type": "head",
+            "name": "coif",
+            "scale": 0.5,
+            "isDragging": false,
+            "defense": 3,
+            "capacity": 1
+          },
+          "back": {
+            "image": {},
+            "source": {
+              "sx": 64,
+              "sy": 448
+            },
+            "coordinates": {
+              "dx": 976,
+              "dy": 16
+            },
+            "size": 64,
+            "id": 13.406789144711286,
+            "type": "back",
+            "name": "enchantedbackpack",
+            "scale": 0.5,
+            "isDragging": false,
+            "contents": [],
+            "spaces": 36,
+            "capacity": 0.5
+          },
+          "mainhand": {
+            "image": {},
+            "source": {
+              "sx": 320,
+              "sy": 64
+            },
+            "coordinates": {
+              "dx": 848,
+              "dy": 144
+            },
+            "size": 64,
+            "id": 2.545936867433156,
+            "type": "mainhand",
+            "name": "sword",
+            "scale": 0.5,
+            "isDragging": false,
+            "offense": 2,
+            "speed": 1,
+            "capacity": 1.25
+          },
+          "offhand": {
+            "image": {},
+            "source": {
+              "sx": 576,
+              "sy": 128
+            },
+            "coordinates": {
+              "dx": 976,
+              "dy": 80
+            },
+            "size": 64,
+            "id": 3.3965709727068996,
+            "type": "offhand",
+            "name": "heater",
+            "scale": 0.5,
+            "isDragging": false
+          },
+          "chest": {
+            "image": {},
+            "source": {
+              "sx": 64,
+              "sy": 128
+            },
+            "coordinates": {
+              "dx": 848,
+              "dy": 80
+            },
+            "size": 64,
+            "id": 2.8845616516010097,
+            "type": "chest",
+            "name": "chainmail",
+            "scale": 0.5,
+            "isDragging": false
+          },
+          "legs": {
+            "image": {},
+            "source": {
+              "sx": 128,
+              "sy": 128
+            },
+            "coordinates": {
+              "dx": 912,
+              "dy": 144
+            },
+            "size": 64,
+            "id": 0.3301560927244047,
+            "type": "legs",
+            "name": "chainmaillegs",
+            "scale": 0.5,
+            "isDragging": false
+          },
+          "feet": {
+            "image": {},
+            "source": {
+              "sx": 192,
+              "sy": 128
+            },
+            "coordinates": {
+              "dx": 976,
+              "dy": 144
+            },
+            "size": 64,
+            "id": 3.7766452390567484,
+            "type": "feet",
+            "name": "chausses",
+            "scale": 0.5,
+            "isDragging": false
+          }
         },
         "depot": [],
         "stance": "defensive"
