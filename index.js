@@ -436,6 +436,7 @@ const handleEquipping = (item) => {
             inventory = secondinventory;
             secondSection.splice(0);
             secondinventory = [];
+            inventoryLocations.expanded = true;
           } else if (secondSection.length === 0) {
             firstSection.splice(0);
             inventory = [];
@@ -470,12 +471,12 @@ const handleEquipping = (item) => {
       if (item.type === 'back') {       
         if (firstSection.length > 0 && secondSection.length > 0) {
           if (secondSection[secondSection.length - 1] === item) {
+            secondSection.splice(0);
+            secondSection.push(...firstSection);
+            secondinventory = inventory;
             firstSection.splice(0);
             firstSection.push(item);
             inventory = item.contents;
-            inventoryLocations.expanded = true;
-            secondSection.splice(0);
-            secondinventory = [];
           } else {
             firstSection.splice(0);
             firstSection.push(item);
@@ -562,16 +563,14 @@ const drawInventorySection = () => {
   const secondSection = inventoryLocations.secondary;
   
   const currFirstSection = firstSection.stack.length > 0 ? firstSection.stack[firstSection.stack.length - 1] : null;
-  const currSecondSection = secondSection.stack.length > 0 ? secondSection.stack[secondSection.stack.length - 1] : null;
-   
-  if (firstSection.stack.length === 0 && secondSection.stack.length === 0) {
-    ctx.clearRect(screen.width, 256, 192, 448);
-    ctx.fillStyle = '#2e2e2e';
-    ctx.fillRect(screen.width, 256, 192, 448);  
-  };
+  const currSecondSection = secondSection.stack.length > 0 ? secondSection.stack[secondSection.stack.length - 1] : null; 
+  
+  ctx.clearRect(screen.width, 256, 192, 448);
+  ctx.fillStyle = '#2e2e2e';
+  ctx.fillRect(screen.width, 256, 192, 448);  
 
-  const drawSection = (container = null, coordY = inventoryLocations.primary.y) => {
-    if (container !== 'empty' || container !== null) {
+  const drawSection = (container, coordY = firstSection.y) => {
+    if (container.hasOwnProperty('contents')) {
       ctx.drawImage(
         menu.image, 
         menu.containers[container.name].sx, 
@@ -612,16 +611,16 @@ const drawInventorySection = () => {
   };
   
   if (currFirstSection !== null && currFirstSection.hasOwnProperty('contents')) {
-    ctx.clearRect(screen.width, inventoryLocations.primary.y - 36, 192, 448);
+    ctx.clearRect(screen.width, firstSection.y - 36, 192, 448);
     ctx.fillStyle = '#2e2e2e';
-    ctx.fillRect(screen.width, inventoryLocations.primary.y - 36, 192, 448);  
+    ctx.fillRect(screen.width, firstSection.y - 36, 192, 448);  
     drawSection(currFirstSection, firstSection.y);
   };
 
   if (currSecondSection !== null && currSecondSection.hasOwnProperty('contents')) {
-    ctx.clearRect(screen.width, inventoryLocations.secondary.y - 36, 192, 224);
+    ctx.clearRect(screen.width, secondSection.y - 36, 192, 224);
     ctx.fillStyle = '#2e2e2e';
-    ctx.fillRect(screen.width, inventoryLocations.secondary.y - 36, 192, 224);  
+    ctx.fillRect(screen.width, secondSection.y - 36, 192, 224);  
     drawSection(currSecondSection, secondSection.y)
   };
 };  
@@ -922,7 +921,7 @@ const handleMouseUp = e => {
   };
 };
 
-// contextmenu event listener
+// right click event listener
 const handleRightClick = e => {
   e.preventDefault();
 
@@ -935,37 +934,40 @@ const handleRightClick = e => {
   if (!useItem) return;
 
   if (isInRangeOfPlayer(useItem.coordinates.dx, useItem.coordinates.dy) || [...equipped, ...inventory, ...secondinventory].includes(useItem)) {
-    
     canvas.style.cursor = 'wait';
     setTimeout(() => {
       canvas.style.cursor = 'grab';
     }, 100);
     
     if (useItem.hasOwnProperty('contents')) {
+      const backpack = player.data.details.equipped.back;
       const firstSection = inventoryLocations.primary.stack;
       const secondSection = inventoryLocations.secondary.stack;
-      const backpack = player.data.details.equipped.back;
     
-      const appendToFirstSection = (item) => {
-        firstSection.push(item);
-        inventory = item.contents;
-      };
-
-      const appendToFirstSectionFromSecondSection = (item) => {
+      const clearFirstSection = () => {
         firstSection.splice(0);
-        firstSection.push(...secondSection);
-        inventory = secondinventory;
+        inventory = [];
+      };
+      const clearSecondSection = () => {
         secondSection.splice(0);
         secondinventory = [];
         inventoryLocations.expanded = true;
       };
-
+      const appendToFirstSection = (item) => {
+        firstSection.push(item);
+        inventory = item.contents;
+      };
       const appendToSecondSection = (item) => {
         secondSection.push(item);
         secondinventory = item.contents;
         inventoryLocations.expanded = false;
       };
-
+      const appendToFirstSectionFromSecondSection = () => {
+        clearFirstSection();
+        firstSection.push(...secondSection);
+        inventory = secondinventory;
+        clearSecondSection();
+      };
       const appendToSecondSectionFromFirstSection = (item) => {
         secondSection.push(...firstSection);
         secondinventory = inventory;
@@ -974,63 +976,43 @@ const handleRightClick = e => {
         inventoryLocations.expanded = false;
       };
 
-      const clearFirstSection = () => {
-        firstSection.splice(0);
-        inventory = [];
-      };
-
-      const clearSecondSection = () => {
-        secondSection.splice(0);
-        secondinventory = [];
-        inventoryLocations.expanded = true;
-      };
-
-      if (backpack === useItem && firstSection[firstSection.length - 1] === useItem) {
-        
-      } else
-
-      if (backpack === useItem && firstSection[firstSection.length - 1] !== useItem) {
-
-      } else
-      
       if (firstSection.length > 0 && secondSection.length > 0) {
-        if (firstSection[firstSection.length - 1].id !== useItem.id && secondSection[secondSection.length - 1].id !== useItem.id) {
-          secondSection.splice(0);
-          secondSection.push(useItem);
-          secondinventory = useItem.contents;
-        } else if (firstSection[firstSection.length - 1] === useItem) {
-          firstSection.splice(0);
-          firstSection.push(...secondSection);
-          inventory = firstSection[firstSection.length - 1].contents;
-          secondSection.splice(0);
-          secondinventory = [];
-          inventoryLocations.expanded = true;
-        } else if (secondSection[secondSection.length - 1] === useItem) {
-          secondSection.splice(0);
-          secondinventory = [];
-          inventoryLocations.expanded = true;
-        } else if (firstSection[firstSection.length - 1].contents.includes(useItem)) {
-          firstSection.push(useItem);
-          inventory = useItem.contents;
-        } else if (secondSection[secondSection.length - 1].contents.includes(useItem)) {
-          secondSection.push(useItem);
-          secondinventory = useItem.contents;
+        if (backpack === useItem && firstSection[firstSection.length - 1].id === useItem.id) {
+          appendToFirstSectionFromSecondSection();
+        } else if (backpack === useItem && firstSection[firstSection.length - 1].id !== useItem.id) {
+          clearFirstSection();
+          appendToFirstSection(useItem);
+
+        } else if (inventory.includes(useItem)) {
+          appendToFirstSection(useItem);
+        } else if (secondinventory.includes(useItem)) {
+          appendToSecondSection(useItem);
+
+        } else if (firstSection[firstSection.length - 1].id !== useItem.id && secondSection[secondSection.length - 1].id !== useItem.id) {
+          clearSecondSection();
+          appendToSecondSection(useItem);
+        
+        } else if (firstSection[firstSection.length - 1].id === useItem.id) {
+          appendToFirstSectionFromSecondSection();
+
+        } else if (secondSection[secondSection.length - 1].id === useItem.id) {
+          clearSecondSection();
         };
 
       } else if (firstSection.length > 0 && secondSection.length === 0) {
-        if (firstSection[firstSection.length - 1] === useItem) {
-          firstSection.splice(0);
-          inventory = [];
+        if (backpack === useItem && firstSection[firstSection.length - 1].id === useItem.id) {
+          clearFirstSection();
+        } else if (backpack === useItem && firstSection[firstSection.length - 1].id !== useItem.id) {
+          appendToSecondSectionFromFirstSection(useItem);
+
+        } else if (firstSection[firstSection.length - 1] === useItem) {
+          clearFirstSection();
         } else {
-          secondSection.push(useItem);
-          secondinventory = useItem.contents;
-          inventoryLocations.expanded = false;
+          appendToSecondSection(useItem);
         };
 
       } else if (firstSection.length === 0 && secondSection.length === 0) {
-        firstSection.push(useItem);
-        inventory = useItem.contents;
-        inventoryLocations.expanded = true;
+        appendToFirstSection(useItem);
       };
 
       if (firstSection[firstSection.length - 1] === useItem && items.includes(useItem)) {
@@ -1112,6 +1094,13 @@ const handleKeyDown = e => {
   }, player.speed);
   
   drawOasis();
+};
+const containerOutOfReach = () => {
+  const midX = screen.width / 2;
+  const midY = screen.height / 2;
+
+  const item1 = {};
+  const item2 = {};
 };
 
 // update player data
