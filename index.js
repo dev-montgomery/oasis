@@ -218,6 +218,12 @@ const initItem = (id, type, name, sx, sy, dx, dy, scale = 1) => {
   } else if (itemIsInEquipSection(dx, dy)) {
     rpgItem.scale = 0.5;
     equipped.push(rpgItem);
+
+    if (rpgItem.hasOwnProperty('contents')) {
+      inventorySections.primary.stack.push(rpgItem);
+      inventory = rpgItem.contents;
+      inventorySections.expanded = true;
+    };
   } else {
     items.push(rpgItem);
   };
@@ -622,8 +628,6 @@ const drawInventorySection = () => {
     ctx.fillRect(screen.width, secondSection.y - 36, 192, 224);  
     drawSection(currSecondSection, secondSection.y)
   };
-
-  console.log(currFirstSection, currSecondSection);
 };  
 
 // handle loading assets/transition to login
@@ -771,9 +775,6 @@ const initPlayerEquipmentAndInventory = () => {
     backpack.contents.forEach(item => {
       initItem(item.id, item.type, item.name, item.source.sx, item.source.sy, item.coordinates.dx, item.coordinates.dy, item.scale);
     });
-    inventorySections.primary.stack.push(backpack);
-    inventory = backpack.contents;
-    inventorySections.expanded = true;
   };
 };
 
@@ -934,10 +935,10 @@ const handleRightClick = e => {
   const mouseX = e.clientX - canvas.getBoundingClientRect().left;
   const mouseY = e.clientY - canvas.getBoundingClientRect().top;
   const useItem = findItemUnderMouse(mouseX, mouseY, [...items, ...equipped, ...inventory, ...secondinventory]);
-
   if (!useItem) return;
 
   if (isInRangeOfPlayer(useItem.coordinates.dx, useItem.coordinates.dy) || [...equipped, ...inventory, ...secondinventory].includes(useItem)) {
+  
     canvas.style.cursor = 'wait';
     setTimeout(() => {
       canvas.style.cursor = 'grab';
@@ -947,7 +948,7 @@ const handleRightClick = e => {
       const backpack = player.data.details.equipped.back;
       const firstSection = inventorySections.primary.stack;
       const secondSection = inventorySections.secondary.stack;
-    
+      console.log(useItem, firstSection[firstSection.length - 1])
       const clearFirstSection = () => {
         firstSection.splice(0);
         inventory = [];
