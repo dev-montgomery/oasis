@@ -39,6 +39,7 @@ const chat = {
 };
 
 let currentMenu = 'inventory';
+let isShiftKeyPressed = false;
 
 let items = [];
 let equipped = [];
@@ -192,11 +193,14 @@ const itemIsInInventorySection = (dx, dy) => {
     };
   };
 };
+// ctx.fillRect(screen.width, firstSection.y - 36, 192, 448);  
+
+// ctx.clearRect(screen.width, secondSection.y - 36, 192, 224);
 const itemIsInSecondaryInventorySection = (dx, dy) => {
   if (inventory.secondary.stack.length > 0){
     return isPointInsideRectangle(dx, dy, {
       x: screen.width,
-      y: 292,
+      y: 516,
       width: 192,
       height: 188
     });
@@ -563,6 +567,12 @@ const drawEquipmentSection = () => {
 };
 
 // handle inventory items ----------------------------------------
+// const handleInventory = (item) => {
+//   if (currentMenu === 'inventory') {
+//     inventory.forEach()    
+//   };
+// };
+
 const drawInventorySection = () => {
   const firstSection = inventorySections.primary;
   const secondSection = inventorySections.secondary;
@@ -604,13 +614,13 @@ const drawInventorySection = () => {
         const spaceY = coordY + gapBetweenStorageSpaces + y;
         ctx.fillRect(spaceX, spaceY, 34, 34);
         
-        // if (inventory[i + itemIndex]) {
-        //   const item = inventory[i + itemIndex];
-        //   item.coordinates.dx = spaceX;
-        //   item.coordinates.dy = spaceY + 1;
-        //   item.scale = 0.5;
-        //   item.draw(ctx);
-        // };
+        if (inventory[i + itemIndex]) {
+          const item = inventory[i + itemIndex];
+          item.coordinates.dx = spaceX;
+          item.coordinates.dy = spaceY + 1;
+          item.scale = 0.5;
+          
+        };
       };
     };
   };
@@ -792,10 +802,10 @@ const handleMouseDown = e => {
       menu.menuSection.trackingbtn
     ];
 
-    // if (e.shiftKey && isInRangeOfPlayer(selectedItem.coordinates.dx, selectedItem.coordinates.dy)) {
-    //   isShiftKeyPressed = true;
-    //   selectedItem.shifted = true;
-    // };
+    if (e.shiftKey && isInRangeOfPlayer(selectedItem.coordinates.dx, selectedItem.coordinates.dy)) {
+      isShiftKeyPressed = true;
+      selectedItem.shifted = true;
+    };
     
     if (selectedItem && isInRangeOfPlayer(selectedItem.coordinates.dx, selectedItem.coordinates.dy)) {
       selectedItem.isDragging = true;
@@ -855,19 +865,24 @@ const handleMouseUp = e => {
   if (!game.on) return;
 
   if (e.which === 1 || e.button === 0) {
-    // const handleShiftMouseUp = (container, item) => {
-    //   item.coordinates.dx = screen.width + (inventory.length % 5) * 36;
-    //   item.coordinates.dy = Math.floor(inventory.length / 5) * 36;
-    //   delete item.shifted;
-    //   canvas.style.cursor = 'crosshair';
+    const handleShiftMouseUp = (item) => {
+      if (inventorySections.primary.stack.length > 0) {
+        const container = inventorySections.primary.stack[inventorySections.primary.stack.length - 1];
+        if (inventory.length < container.spaces) {
+          item.coordinates.dx = screen.width + (inventory.length % 5) * 36;
+          item.coordinates.dy = Math.floor(inventory.length / 5) * 36;
+          delete item.shifted;
 
-    //   handleInventory(container, item);
-    //   items.splice(items.indexOf(item), 1);
-
-    //   drawOasis();
-    //   drawEquipmentSection();
-    //   drawInventorySection();
-    // };
+          container.contents.push(item);
+          inventory = container.contents;
+          
+          items.splice(items.indexOf(item), 1);
+          canvas.style.cursor = 'crosshair';
+        };
+      };
+      drawMenu(currentMenu);
+      drawOasis();
+    };
 
     const handleDragging = (item) => {
       const posX = e.clientX - canvas.getBoundingClientRect().left;
@@ -909,19 +924,25 @@ const handleMouseUp = e => {
         canvas.style.cursor = 'grab';
       };
 
+      // if (itemIsInInventorySection(dx, dy) && currentMenu === 'inventory') {
+        // handleInventory(item, )
+      //   canvas.style.cursor = 'grab';
+      // } else if (itemIsInSecondaryInventorySection(dx, dy) && currentMenu === 'inventory') {
+      //   canvas.style.cursor = 'grab';
+      // };
+
       drawMenu(currentMenu);
       drawOasis();
     };
 
-    // const backpack = player.data.details.equipped.back;
+    const backpack = inventorySections.primary.stack.length > 0 ? inventorySections.primary.stack[inventorySections.primary.stack.length - 1] : null;
     items.concat(equipped).forEach(item => {
-      // if (item.shifted && backpack !== "empty") {
-      //   handleShiftMouseUp(backpack, item);    
-      // } else 
-      if (item.isDragging) {
+      if (item.shifted && backpack !== null) {
+        handleShiftMouseUp(item);    
+      } else if (item.isDragging) {
         handleDragging(item);
       };
-      // isShiftKeyPressed = false;
+      isShiftKeyPressed = false;
     });
   };
 };
