@@ -116,22 +116,24 @@ player.loadImage().then(() => {
   player.loaded = true;
 });
 const initItemsInGame = () => {
-  initItem(createRandomID(items.length + 1), 'head', 'hood', 0, 0, 256, 256);
-  initItem(createRandomID(items.length + 1), 'chest', 'tunic', 64, 0, 256, 320);
-  initItem(createRandomID(items.length + 1), 'legs', 'pants', 128, 0, 256, 384);
-  initItem(createRandomID(items.length + 1), 'neck', 'fanged', 448, 128, 192, 256);
-  initItem(createRandomID(items.length + 1), 'mainhand', 'sword', 320, 64, 192, 320);
-  initItem(createRandomID(items.length + 1), 'offhand', 'kite', 576, 64, 320, 320);
-  initItem(createRandomID(items.length + 1), 'feet', 'shoes', 192, 0, 256, 448);
-  initItem(createRandomID(items.length + 1), 'back', 'backpack', 0, 448, 320, 256);
-  initItem(createRandomID(items.length + 1), 'head', 'coif', 0, 128, 512, 256);
-  initItem(createRandomID(items.length + 1), 'chest', 'chainmail', 64, 128, 512, 320);
-  initItem(createRandomID(items.length + 1), 'legs', 'chainmaillegs', 128, 128, 512, 384);
-  initItem(createRandomID(items.length + 1), 'neck', 'silver', 512, 128, 448, 256);
-  initItem(createRandomID(items.length + 1), 'mainhand', 'spear', 512, 64, 448, 320);
-  initItem(createRandomID(items.length + 1), 'offhand', 'heater', 576, 128, 576, 320);
-  initItem(createRandomID(items.length + 1), 'feet', 'chausses', 192, 128, 512, 448);
-  initItem(createRandomID(items.length + 1), 'back', 'enchantedbackpack', 64, 448, 576, 256);
+  let array = [initItem(createRandomID(items.length + 1), 'head', 'hood', 0, 0, 256, 256),
+  initItem(createRandomID(items.length + 1), 'chest', 'tunic', 64, 0, 256, 320),
+  initItem(createRandomID(items.length + 1), 'legs', 'pants', 128, 0, 256, 384),
+  initItem(createRandomID(items.length + 1), 'neck', 'fanged', 448, 128, 192, 256),
+  initItem(createRandomID(items.length + 1), 'mainhand', 'sword', 320, 64, 192, 320),
+  initItem(createRandomID(items.length + 1), 'offhand', 'kite', 576, 64, 320, 320),
+  initItem(createRandomID(items.length + 1), 'feet', 'shoes', 192, 0, 256, 448),
+  initItem(createRandomID(items.length + 1), 'back', 'backpack', 0, 448, 320, 256),
+  initItem(createRandomID(items.length + 1), 'head', 'coif', 0, 128, 512, 256),
+  initItem(createRandomID(items.length + 1), 'chest', 'chainmail', 64, 128, 512, 320),
+  initItem(createRandomID(items.length + 1), 'legs', 'chainmaillegs', 128, 128, 512, 384),
+  initItem(createRandomID(items.length + 1), 'neck', 'silver', 512, 128, 448, 256),
+  initItem(createRandomID(items.length + 1), 'mainhand', 'spear', 512, 64, 448, 320),
+  initItem(createRandomID(items.length + 1), 'offhand', 'heater', 576, 128, 576, 320),
+  initItem(createRandomID(items.length + 1), 'feet', 'chausses', 192, 128, 512, 448),
+  initItem(createRandomID(items.length + 1), 'back', 'enchantedbackpack', 64, 448, 576, 256)];
+
+  items.push(...array);
 };
 
 // boundary validation functions ---------------------------------
@@ -214,23 +216,18 @@ const initItem = (id, type, name, sx, sy, dx, dy, scale = 1) => {
   
   Object.assign(rpgItem, category[name]);
 
-  const backpack = player.data.details.equipped.back;
-  
-  if (backpack.hasOwnProperty('contents') && backpack.contents.find(item => item.id === rpgItem.id)){
-    rpgItem.scale = 0.5;
-    inventory.push(rpgItem);
-  } else if (itemIsInEquipSection(dx, dy)) {
-    rpgItem.scale = 0.5;
-    equipped.push(rpgItem);
+  // const container = inventorySections.primary.stack.length > 0 ? inventorySections.primary.stack[inventorySections.primary.stack.length - 1] : null;
+  // const backpack = player.data.details.equipped.back;
 
-    if (rpgItem.hasOwnProperty('contents')) {
-      inventorySections.primary.stack.push(rpgItem);
-      inventory = rpgItem.contents;
-      inventorySections.expanded = true;
-    };
-  } else {
-    items.push(rpgItem);
-  };
+  return rpgItem;
+  // if (backpack.hasOwnProperty('contents') && itemIsInEquipSection(dx, dy)) {
+  //   rpgItem.scale = 0.5;
+  //   equipped.push(rpgItem);
+  // // } else if (inventory.find(item => item.id === rpgItem.id)) {
+  // //   inventory[inventory.findIndex(item => item.id === rpgItem.id)] = rpgItem;
+  // } else {
+  //   items.push(rpgItem);
+  // };
 };
 const createRandomID = (input) => {
   return Math.random() * input;
@@ -614,12 +611,12 @@ const drawInventorySection = () => {
         const spaceY = coordY + gapBetweenStorageSpaces + y;
         ctx.fillRect(spaceX, spaceY, 34, 34);
         
-        if (inventory[i + itemIndex]) {
-          const item = inventory[i + itemIndex];
+        if (inventory[i]) {
+          const item = inventory[i];
           item.coordinates.dx = spaceX;
           item.coordinates.dy = spaceY + 1;
           item.scale = 0.5;
-          
+          item.draw(ctx);
         };
       };
     };
@@ -774,17 +771,16 @@ const initPlayerEquipmentAndInventory = () => {
   for (const piece in equippedItems) {
     if (equippedItems[piece] !== 'empty') {
       const item = equippedItems[piece];
-      initItem(item.id, item.type, item.name, item.source.sx, item.source.sy, item.coordinates.dx, item.coordinates.dy, item.scale);
+      const rpgItem = initItem(item.id, item.type, item.name, item.source.sx, item.source.sy, item.coordinates.dx, item.coordinates.dy, item.scale);
+      equipped.push(rpgItem);
+      if (rpgItem.hasOwnProperty('contents')) {
+        inventorySections.primary.stack.push(rpgItem);
+        inventorySections.expanded = true;
+        rpgItem.contents.forEach(item => {
+          inventory.push(initItem(item.id, item.type, item.name, item.source.sx, item.source.sy, item.coordinates.dx, item.coordinates.dy, item.scale))
+        });
+      };
     };
-  };
-  
-  // create all inventory items
-  const backpack = equippedItems.back;
-
-  if (backpack !== 'empty' && backpack.hasOwnProperty('contents')) {
-    backpack.contents.forEach(item => {
-      initItem(item.id, item.type, item.name, item.source.sx, item.source.sy, item.coordinates.dx, item.coordinates.dy, item.scale);
-    });
   };
 };
 
