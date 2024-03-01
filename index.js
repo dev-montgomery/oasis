@@ -178,33 +178,31 @@ const itemIsInEquipSection = (dx, dy) => {
 };
 const itemIsInInventorySection = (dx, dy) => {
   if (inventorySections.primary.stack.length > 0){
-    if (inventorySections.secondary.stack === 0) {
+    if (inventorySections.secondary.stack.length === 0) {
       return isPointInsideRectangle(dx, dy, {
         x: screen.width,
-        y: inventorySections.primary.y,
+        y: inventorySections.primary.y - 36,
         width: 192,
-        height: 188
+        height: 448
       });
     } else {
       return isPointInsideRectangle(dx, dy, {
         x: screen.width,
-        y: inventorySections.primary.y,
+        y: inventorySections.primary.y - 36,
         width: 192,
-        height: 412
+        height: 224
       });
     };
   };
 };
-// ctx.fillRect(screen.width, firstSection.y - 36, 192, 448);  
 
-// ctx.clearRect(screen.width, secondSection.y - 36, 192, 224);
 const itemIsInSecondaryInventorySection = (dx, dy) => {
-  if (inventory.secondary.stack.length > 0){
+  if (inventorySections.secondary.stack.length > 0){
     return isPointInsideRectangle(dx, dy, {
       x: screen.width,
-      y: 516,
+      y: inventorySections.secondary.y - 36,
       width: 192,
-      height: 188
+      height: 224
     });
   };
 };
@@ -564,11 +562,20 @@ const drawEquipmentSection = () => {
 };
 
 // handle inventory items ----------------------------------------
-// const handleInventory = (item) => {
-//   if (currentMenu === 'inventory') {
-//     inventory.forEach()    
-//   };
-// };
+const handleInventory = (item, container) => {
+  if (currentMenu === 'inventory') {
+    container.contents.push(item);
+    
+    const firstSection = inventorySections.primary.stack[inventorySections.primary.stack.length - 1] || null;
+    const secondSection = inventorySections.secondary.stack[inventorySections.secondary.stack.length - 1] || null;
+
+    if (container === firstSection) {
+      inventory.push(item);
+    } else if (container === secondSection) {
+      secondinventory.push(item);
+    };
+  };
+};
 
 const drawInventorySection = () => {
   const firstSection = inventorySections.primary;
@@ -792,6 +799,7 @@ const handleMouseDown = e => {
     const mouseY = e.clientY - canvas.getBoundingClientRect().top;
     const selectedItem = findItemUnderMouse(mouseX, mouseY, items);      
     const equippedItem = findItemUnderMouse(mouseX, mouseY, equipped);
+    const inventoryItem = findItemUnderMouse(mouseX, mouseY, [...inventory, ...secondinventory]);
     const menubtns = [
       menu.menuSection.mapbtn, 
       menu.menuSection.inventorybtn, 
@@ -813,6 +821,11 @@ const handleMouseDown = e => {
       canvas.style.cursor = 'grabbing';
     };
 
+    if (inventoryItem && currentMenu === 'inventory') {
+      inventoryItem.isDragging = true;
+      canvas.style.cursor = 'grabbing';
+    };
+
     menubtns.forEach(btn => {
       if (mouseX > btn.dx && mouseX < btn.dx + btn.width && mouseY > btn.dy && mouseY < btn.dy + btn.height) {
         currentMenu = btn.name;
@@ -830,6 +843,7 @@ const handleMouseMove = e => {
     const mouseY = e.clientY - canvas.getBoundingClientRect().top;
     const selectedItem = findItemUnderMouse(mouseX, mouseY, items);
     const equippedItem = findItemUnderMouse(mouseX, mouseY, equipped);
+    const inventoryItem = findItemUnderMouse(mouseX, mouseY, [...inventory, ...secondinventory]);
     const menubtns = [
       menu.menuSection.mapbtn, 
       menu.menuSection.inventorybtn, 
@@ -840,7 +854,11 @@ const handleMouseMove = e => {
       canvas.style.cursor = 'crosshair';
     };
     
-    if (selectedItem && canvas.style.cursor !== 'grabbing' || equippedItem && canvas.style.cursor !== 'grabbing' && currentMenu === 'inventory') {
+    if (
+      selectedItem && canvas.style.cursor !== 'grabbing' || 
+      equippedItem && canvas.style.cursor !== 'grabbing' && currentMenu === 'inventory' ||
+      inventoryItem && canvas.style.cursor !== 'grabbing' && currentMenu === 'inventory' 
+    ) {
       canvas.style.cursor = 'grab';
     };
 
@@ -920,19 +938,22 @@ const handleMouseUp = e => {
         canvas.style.cursor = 'grab';
       };
 
-      // if (itemIsInInventorySection(dx, dy) && currentMenu === 'inventory') {
-        // handleInventory(item, )
-      //   canvas.style.cursor = 'grab';
-      // } else if (itemIsInSecondaryInventorySection(dx, dy) && currentMenu === 'inventory') {
-      //   canvas.style.cursor = 'grab';
-      // };
+      if (itemIsInInventorySection(dx, dy) && currentMenu === 'inventory') {
+        handleInventory(item, inventorySections.primary.stack[inventorySections.primary.stack.length - 1]);
+        canvas.style.cursor = 'grab';
+      } else if (itemIsInSecondaryInventorySection(dx, dy) && currentMenu === 'inventory') {
+        handleInventory(item, inventorySections.secondary.stack[inventorySections.secondary.stack.length - 1]);
+        canvas.style.cursor = 'grab';
+      };
 
       drawMenu(currentMenu);
       drawOasis();
     };
 
     const backpack = inventorySections.primary.stack.length > 0 ? inventorySections.primary.stack[inventorySections.primary.stack.length - 1] : null;
-    items.concat(equipped).forEach(item => {
+    const allItems = [...items, ...equipped, ...inventory, ...secondinventory];
+    
+    allItems.forEach(item => {
       if (item.shifted && backpack !== null) {
         handleShiftMouseUp(item);    
       } else if (item.isDragging) {
